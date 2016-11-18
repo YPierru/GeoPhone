@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_main"
@@ -9,9 +10,58 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.yanclement.geophone.MainActivity">
+    <LinearLayout
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:layout_width="0px"
+        android:layout_height="0px"/>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!" />
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentTop="true"
+        android:id="@+id/ll_main">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:id="@+id/ll_phone_input">
+
+            <AutoCompleteTextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:id="@+id/actv_contact"
+                android:layout_weight="1.08"
+                android:nextFocusUp="@id/actv_contact"
+                android:nextFocusLeft="@id/actv_contact"
+                android:hint="@string/actv_hint"
+                android:textStyle="normal"
+                android:textSize="18sp" />
+
+            <Button
+                android:text="Recherche"
+                android:layout_width="wrap_content"
+                android:layout_height="65dp"
+                android:id="@+id/btn_search" />
+        </LinearLayout>
+
+        <TextView
+            android:text="Historique"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/tv_label"
+            android:textSize="24sp"
+            android:textStyle="normal|bold"
+            android:layout_margin="10dp" />
+
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/lv_previous_search"
+            android:layout_margin="5dp" />
+
+    </LinearLayout>
 </RelativeLayout>
