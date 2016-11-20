@@ -11,4 +11,8 @@ public class Constants {
     public static final String SERVICE_STOP="STOP";
     public static final String SERVICE_START="START";
 
+
+    public static final String SMS_CMD_TAG="[GeoPhone]";
+    public static final String SMS_CMD_COO=SMS_CMD_TAG+"GPS_MAGN_COO";
+
 }

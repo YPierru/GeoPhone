@@ -22,7 +22,7 @@ public abstract class SMSBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         messageBody="";
-        // TODO Auto-generated method stub
+
         if (intent.getAction().equals(ACTION_RECEIVE_SMS)) {
             Bundle bundle = intent.getExtras();
 

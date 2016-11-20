@@ -26,13 +26,9 @@ public class ServiceListenerSMS extends Service {
 
         Bundle bdl=intent.getExtras();
 
-        /**
-         * Start or stop itself according to the value of SERVICE_BEHAVIOR
-         */
         String behavior = bdl.getString(Constants.SERVICE_BEHAVIOR);
-        Logger.logI("poulet");
+
         if(behavior.equals(Constants.SERVICE_START)){
-            Logger.logI("coucou");
             listenSMSReceiver();
         }else if(behavior.equals(Constants.SERVICE_STOP)){
             stopSelf();

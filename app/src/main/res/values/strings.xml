@@ -2,4 +2,5 @@
     <string name="app_name">GeoPhone</string>
     <string name="service_name">ServiceListenerSMS</string>
     <string name="actv_hint"><font size="14">Taper un contact/numéro</font></string>
+    <string name="crouton_msg_sended">Message envoyé !</string>
 </resources>
