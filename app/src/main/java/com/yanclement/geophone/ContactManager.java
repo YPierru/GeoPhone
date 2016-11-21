@@ -17,7 +17,7 @@ public class ContactManager {
 
 
 
-    public HashMap<String,String> getContacts(ContentResolver cr) {
+    public static HashMap<String,String> getContacts(ContentResolver cr) {
 
         HashMap<String,String> mapContacts = new HashMap<>();
         Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI, null,null, null, null);
@@ -49,7 +49,7 @@ public class ContactManager {
         return mapContacts;
     }
 
-    private String parsePhones(String phone){
+    private static String parsePhones(String phone){
         phone = phone.replaceAll("\\+33","0");
         phone=phone.replaceAll("-", "");
         phone=phone.replaceAll(" ", "");

@@ -15,10 +15,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <service
-            android:name=".ServiceListenerSMS"
-            android:label="@string/service_name" >
-        </service>
+        <activity android:name="com.yanclement.geophone.intro.IntroActivity"
+            android:theme="@style/FullscreenTheme"
+            android:label="@string/app_intro" />
 
         <activity android:name=".MainActivity">
             <intent-filter>
