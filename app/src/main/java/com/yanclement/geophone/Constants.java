@@ -6,15 +6,16 @@ package com.yanclement.geophone;
 
 public class Constants {
 
-    public static final String TAG_INFORMATION = "SMS_SERVER_DEBUG";
-    public static final String SERVICE_BEHAVIOR="SERVICE_BEHAVIOR";
-    public static final String SERVICE_STOP="STOP";
-    public static final String SERVICE_START="START";
-
+    public static final String TAG_INFORMATION = "GEOPHONE_DEBUG";
 
     public static final String SMS_CMD_TAG="[GeoPhone]";
-    public static final String SMS_CMD_COO=SMS_CMD_TAG+"GPS_MAGN_COO";
+    public static final String SMS_CMD_COO_REQUEST=SMS_CMD_TAG+"GPS_MAGN_COO_RQ";
+    public static final String SMS_CMD_COO_GPS_RESPONSE="GPS_COO";
+    public static final String SMS_CMD_COO_MAGN_RESPONSE="MAGN_COO";
 
+
+    public static final String SEARCHED_PHONE_LOCATION="SEARCHED_PHONE_LOCATION";
+    public static final String SEARCHED_PHONE_ID="SEARCHED_PHONE_ID";
 
     /**
      * Permission request identifier

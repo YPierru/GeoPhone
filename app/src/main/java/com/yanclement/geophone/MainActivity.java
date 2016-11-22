@@ -1,16 +1,15 @@
 package com.yanclement.geophone;
 
 import android.Manifest;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.net.Uri;
+import android.location.Location;
 import android.os.Bundle;
-import android.provider.Settings;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -23,8 +22,11 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ListView;
 
+import com.yanclement.geophone.intro.IntroActivity;
+
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.regex.Pattern;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
@@ -54,12 +56,15 @@ public class MainActivity extends AppCompatActivity {
     private ArrayAdapter<String> adapterLV;
 
     private final boolean SMS_SENDING_FEATURE=true;
+    private final boolean SMS_RECEIVING_FEATURE=true;
+
     public boolean isFirstStart;
 
     private SMSBroadcastReceiver broadcastReceiver;
 
     private ProgressDialog progressDialog;
 
+    private LocationUtils locationUtils;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,13 +72,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Logger.enableLog();
 
-        permissionManagement();
-
-        //Intent i = new Intent(MainActivity.this, IntroActivity.class);
-        //startActivity(i);
 
         //  Declare a new thread to do a preference check
-        /*Thread t = new Thread(new Runnable() {
+        Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
                 //  Initialize SharedPreferences
@@ -104,18 +105,9 @@ public class MainActivity extends AppCompatActivity {
         // Start the thread
         t.start();
 
-        Bundle extra= getIntent().getExtras();
-        if(extra!=null){
-            String behavior=extra.getString(Constants.ID_BEHAVIOR_MAINACTIVITY);
-            if(behavior.equals(Constants.KEY_BEHAVIOR_MAINACTIVITY_FROM_APPINTRO)){
-                permissionManagement();
-            }
-        }
-
-        if(!isFirstStart){
+        if(!isFirstStart) {
             permissionManagement();
-        }*/
-
+        }
     }
 
     @Override
@@ -132,17 +124,25 @@ public class MainActivity extends AppCompatActivity {
         int permissionCheckReadContact=ContextCompat.checkSelfPermission(this,Manifest.permission.READ_CONTACTS);
         int permissionCheckReceiveSMS = ContextCompat.checkSelfPermission(this,Manifest.permission.RECEIVE_SMS);
         int permissionCheckReadSMS = ContextCompat.checkSelfPermission(this,Manifest.permission.READ_SMS);
+        int permissionCheckFineLocation = ContextCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION);
+        int permissionCheckCoarseLocation = ContextCompat.checkSelfPermission(this,Manifest.permission.ACCESS_COARSE_LOCATION);
 
         if( permissionCheckReadSMS==PackageManager.PERMISSION_GRANTED &&
                 permissionCheckReceiveSMS==PackageManager.PERMISSION_GRANTED &&
-                permissionCheckReadContact==PackageManager.PERMISSION_GRANTED){
+                permissionCheckReadContact==PackageManager.PERMISSION_GRANTED &&
+                permissionCheckFineLocation==PackageManager.PERMISSION_GRANTED &&
+                permissionCheckCoarseLocation==PackageManager.PERMISSION_GRANTED){
             initApplication();
         }else if(permissionCheckReadSMS==PackageManager.PERMISSION_DENIED ||
                 permissionCheckReceiveSMS==PackageManager.PERMISSION_DENIED ||
-                permissionCheckReadContact==PackageManager.PERMISSION_DENIED){
+                permissionCheckReadContact==PackageManager.PERMISSION_DENIED ||
+                permissionCheckFineLocation==PackageManager.PERMISSION_DENIED ||
+                permissionCheckCoarseLocation==PackageManager.PERMISSION_DENIED){
             ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.READ_SMS,
                     Manifest.permission.RECEIVE_SMS,
-                    Manifest.permission.READ_CONTACTS}, Constants.ID_PERMISSION_REQUEST);
+                    Manifest.permission.READ_CONTACTS,
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION}, Constants.ID_PERMISSION_REQUEST);
         }
     }
 
@@ -156,6 +156,7 @@ public class MainActivity extends AppCompatActivity {
         initListView();
         initAutoCompleteTextView();
         initButton();
+        locationUtils = new LocationUtils(getApplicationContext());
     }
 
     /**
@@ -170,21 +171,55 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Start the service with the correct behavior
+     * Start the broadcast receiver
      */
     private void initBroadcastReceiver(){
-        broadcastReceiver=new SMSBroadcastReceiver() {
+        if(SMS_RECEIVING_FEATURE) {
+            broadcastReceiver = new SMSBroadcastReceiver() {
 
-            @Override
-            protected void onNewSMS(String message, String phone) {
-                Logger.logI("new SMS Received");
-                Logger.logI("["+phone+"]->"+message);
-                progressDialog.dismiss();
-            }
-        };
-        IntentFilter intentFilter = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
-        intentFilter.setPriority(999);
-        this.registerReceiver(broadcastReceiver, intentFilter);
+                @Override
+                protected void onNewSMS(String message, String phone) {
+                    if(message.startsWith(Constants.SMS_CMD_TAG)){
+                        if (progressDialog != null && progressDialog.isShowing()) {
+                            progressDialog.dismiss();
+                        }
+
+                        if(message.equals(Constants.SMS_CMD_COO_REQUEST)){
+                            Location lastLocation = locationUtils.getLastLocation();
+                            StringBuilder response = new StringBuilder();
+                            response.append(Constants.SMS_CMD_TAG);
+                            response.append(Constants.SMS_CMD_COO_GPS_RESPONSE);
+                            response.append(lastLocation.getLatitude());
+                            response.append(";");
+                            response.append(lastLocation.getLongitude());
+                            sendSMS(phone,response.toString());
+                        }
+
+                        if(message.substring(Constants.SMS_CMD_TAG.length()).startsWith(Constants.SMS_CMD_COO_GPS_RESPONSE)){
+                            int length = Constants.SMS_CMD_TAG.length()+Constants.SMS_CMD_COO_GPS_RESPONSE.length();
+                            String latlng = message.substring(length);
+                            Location locationReceived = new Location("");
+                            locationReceived.setLatitude(Double.parseDouble(latlng.split(";")[0]));
+                            locationReceived.setLongitude(Double.parseDouble(latlng.split(";")[1]));
+
+                            Intent intent = new Intent(MainActivity.this, MapsActivity.class);
+                            intent.putExtra(Constants.SEARCHED_PHONE_LOCATION,locationReceived);
+                            if(contactSelected!=null)
+                                intent.putExtra(Constants.SEARCHED_PHONE_ID,contactSelected);
+                            else
+                                intent.putExtra(Constants.SEARCHED_PHONE_ID,phoneSelected);
+
+                            startActivity(intent);
+
+                        }
+                    }
+
+                }
+            };
+            IntentFilter intentFilter = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
+            intentFilter.setPriority(999);
+            this.registerReceiver(broadcastReceiver, intentFilter);
+        }
     }
 
     /**
@@ -201,10 +236,10 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String data=(String)parent.getItemAtPosition(position);
 
-                if(selectUserInput(data))
-                    actvContact.setText(phoneSelected);
-                else
+                if(isUserInputAContact(data))
                     actvContact.setText(contactSelected);
+                else
+                    actvContact.setText(phoneSelected);
 
                 actvContact.dismissDropDown();
             }
@@ -217,7 +252,6 @@ public class MainActivity extends AppCompatActivity {
     private void initAutoCompleteTextView(){
         actvContact=(AutoCompleteTextView) findViewById(R.id.actv_contact);
         actvContact.setThreshold(1);
-        Logger.logI(""+mapContacts.size());
         ArrayAdapter<String> adapterActv = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1, mapContacts.keySet().toArray(new String[mapContacts.size()]));
         actvContact.setAdapter(adapterActv);
     }
@@ -230,30 +264,34 @@ public class MainActivity extends AppCompatActivity {
         btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                //Update the listview
-                if(selectUserInput(actvContact.getText().toString()))
-                    listPreviousSearch.add(contactSelected);
-                else
-                    listPreviousSearch.add(phoneSelected);
-
-                adapterLV.notifyDataSetChanged();
-
+                String userInput=actvContact.getText().toString();
                 actvContact.setText("");
-                //Hide the keyboard
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(actvContact.getWindowToken(), 0);
 
-                if(SMS_SENDING_FEATURE) {
-                    SmsManager smsManager = SmsManager.getDefault();
-                    smsManager.sendTextMessage(phoneSelected, null, Constants.SMS_CMD_COO, null, null);
+                if(isValidInput(userInput)){
+                    //Update the listview
+                    if(isUserInputAContact(userInput))
+                        listPreviousSearch.add(contactSelected);
+                    else
+                        listPreviousSearch.add(phoneSelected);
+
+                    adapterLV.notifyDataSetChanged();
+
+
+                    //Hide the keyboard
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(actvContact.getWindowToken(), 0);
+
+                    sendSMS(phoneSelected,Constants.SMS_CMD_COO_REQUEST);
+
+                    Logger.logI("SENDED ["+phoneSelected+"] "+Constants.SMS_CMD_COO_REQUEST);
+
+
+                    Crouton.makeText(MainActivity.this, getResources().getString(R.string.crouton_msg_sended), Style.CONFIRM).show();
+                    showProgressDialog();
+                }else{
+                    DialogManager.inputInvalid(MainActivity.this);
                 }
 
-                Logger.logI("SENDED ["+phoneSelected+"] "+Constants.SMS_CMD_COO);
-
-
-                Crouton.makeText(MainActivity.this, getResources().getString(R.string.crouton_msg_sended), Style.CONFIRM).show();
-                showProgressDialog();
             }
         });
     }
@@ -262,8 +300,8 @@ public class MainActivity extends AppCompatActivity {
      * set the variable according to the user input
      * @return true if user wrote a contact, false if wrote a phone number
      */
-    private boolean selectUserInput(String userInput){
-        if(Character.isDigit(userInput.charAt(0))){
+    private boolean isUserInputAContact(String userInput){
+        if(userInput.startsWith("0")){
             phoneSelected=userInput;
             return false;
         }else{
@@ -274,38 +312,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Show the AlertDialog displayed if user deny permissions
-     * Exit the application or send the user to the settings
+     * Validate the user input
+     * @param userInput
+     * @return
      */
-    private void displayAlertDialogPermissionsKO() {
-        new AlertDialog.Builder(MainActivity.this)
-                .setTitle(getResources().getString(R.string.dialog_permission_title))
-                .setMessage(getResources().getString(R.string.dialog_permission_message))
-                .setPositiveButton(getResources().getString(R.string.dialog_permission_posbtn), new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        Intent intent = new Intent();
-                        intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                        intent.addCategory(Intent.CATEGORY_DEFAULT);
-                        intent.setData(Uri.parse("package:" + getApplicationContext().getPackageName()));
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
-                        getApplicationContext().startActivity(intent);
-                        finish();
-                    }
-                })
-                .setNegativeButton(getResources().getString(R.string.dialog_permission_posbtn), new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        Intent intent = new Intent(Intent.ACTION_MAIN);
-                        intent.addCategory(Intent.CATEGORY_HOME);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(intent);
-                        finish();
-                    }
-                })
-                .setCancelable(false)
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .show();
+    private boolean isValidInput(String userInput){
+        String regexPhone="(0)[1-9][0-9]{8}";
+        Pattern pattern = Pattern.compile(regexPhone);
+
+        return (pattern.matcher(userInput).matches() || mapContacts.get(userInput)!=null);
+
+    }
+
+    private void sendSMS(String phone, String message){
+        if(SMS_SENDING_FEATURE) {
+            SmsManager smsManager = SmsManager.getDefault();
+            smsManager.sendTextMessage(phone, null, message, null, null);
+        }
     }
 
     @Override
@@ -317,9 +340,8 @@ public class MainActivity extends AppCompatActivity {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     initApplication();
                 } else {
-                    displayAlertDialogPermissionsKO();
+                    DialogManager.permissionsKO(this);
                 }
-
                 return;
             }
         }

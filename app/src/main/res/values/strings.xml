@@ -2,6 +2,7 @@
     <string name="app_name">GeoPhone</string>
     <string name="service_name">ServiceListenerSMS</string>
     <string name="app_intro">IntroActivity</string>
+    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyA7qBQd6wKTJ_q7hvSKVtoKIUFoXcQHJeg</string>
     <string name="actv_hint"><font size="14">Taper un contact/numéro</font></string>
     <string name="crouton_msg_sended">Message envoyé !</string>
     <string name="crouton_permission_denied">Permission refusée</string>
@@ -9,6 +10,10 @@
     <string name="dialog_permission_message">L\'application ne peut fonctionner sans ces permissions. Allez dans la menu Autorisations pour donner à GeoPhone les droits nécessaires</string>
     <string name="dialog_permission_posbtn">Paramètres</string>
     <string name="dialog_permission_negbtn">Quitter</string>
+    <string name="dialog_bad_input_title">Saisie incorrecte</string>
+    <string name="dialog_bad_input_message">Votre saisie ne correspond ni à un numéro français, ni à un contact de votre répertoire.</string>
+    <string name="dialog_bad_input_btn">Ok</string>
     <string name="progress_dialog_title">SMS envoyé</string>
-    <string name="progress_dialog_message">En attente d|'une réponse...</string>
+    <string name="progress_dialog_message">En attente d\'une réponse...</string>
+    <string name="title_activity_maps">Map</string>
 </resources>

@@ -1,13 +1,10 @@
 package com.yanclement.geophone.intro;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 
 import com.github.paolorotolo.appintro.AppIntro;
-import com.yanclement.geophone.Constants;
-import com.yanclement.geophone.MainActivity;
 import com.yanclement.geophone.R;
 
 /**
@@ -56,26 +53,27 @@ public class IntroActivity extends AppIntro {
     @Override
     public void onSkipPressed(Fragment currentFragment) {
         super.onSkipPressed(currentFragment);
-        // Do something when users tap on Skip button.
-        //Toast.makeText(getApplicationContext(),getString(R.string.skip), Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.putExtra(Constants.ID_BEHAVIOR_MAINACTIVITY,Constants.KEY_BEHAVIOR_MAINACTIVITY_FROM_APPINTRO);
-        startActivity(intent);
-        finish();
+        //processDoneOrSkip();
+        processPermOK();
     }
 
     @Override
     public void onDonePressed(Fragment currentFragment) {
         super.onDonePressed(currentFragment);
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.putExtra(Constants.ID_BEHAVIOR_MAINACTIVITY,Constants.KEY_BEHAVIOR_MAINACTIVITY_FROM_APPINTRO);
-        startActivity(intent);
-        finish();
+        //processDoneOrSkip();
+        processPermOK();
     }
 
     @Override
     public void onSlideChanged(@Nullable Fragment oldFragment, @Nullable Fragment newFragment) {
         super.onSlideChanged(oldFragment, newFragment);
         // Do something when the slide changes.
+    }
+
+    private void processPermOK(){
+        /*Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra(Constants.ID_BEHAVIOR_MAINACTIVITY,Constants.KEY_BEHAVIOR_MAINACTIVITY_FROM_APPINTRO);
+        startActivity(intent);*/
+        finish();
     }
 }
