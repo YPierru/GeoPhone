@@ -71,7 +71,7 @@ public class IntroActivity extends AppIntro {
     }
 
     private void processPermOK(){
-        /*Intent intent = new Intent(this, MainActivity.class);
+        /*Intent intent = new Intent(this, MainActivityEx.class);
         intent.putExtra(Constants.ID_BEHAVIOR_MAINACTIVITY,Constants.KEY_BEHAVIOR_MAINACTIVITY_FROM_APPINTRO);
         startActivity(intent);*/
         finish();

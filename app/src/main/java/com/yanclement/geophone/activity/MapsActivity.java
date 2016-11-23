@@ -1,4 +1,4 @@
-package com.yanclement.geophone;
+package com.yanclement.geophone.activity;
 
 import android.location.Location;
 import android.os.Bundle;
@@ -10,6 +10,8 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.yanclement.geophone.Constants;
+import com.yanclement.geophone.R;
 
 import static com.yanclement.geophone.R.id.map;
 
@@ -53,7 +55,5 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         gMap.addMarker(searchedPhoneMarker).showInfoWindow();
         gMap.animateCamera(CameraUpdateFactory.newLatLngZoom(searchedPhoneLatLng,16),2000,null);
-
-
     }
 }

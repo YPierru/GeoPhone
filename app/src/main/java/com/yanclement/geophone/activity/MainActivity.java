@@ -1,6 +1,5 @@
-package com.yanclement.geophone;
+package com.yanclement.geophone.activity;
 
-import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -10,10 +9,16 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.telephony.SmsManager;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -22,6 +27,13 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ListView;
 
+import com.yanclement.geophone.Constants;
+import com.yanclement.geophone.ContactManager;
+import com.yanclement.geophone.DialogManager;
+import com.yanclement.geophone.LocationUtils;
+import com.yanclement.geophone.Logger;
+import com.yanclement.geophone.R;
+import com.yanclement.geophone.SMSBroadcastReceiver;
 import com.yanclement.geophone.intro.IntroActivity;
 
 import java.util.ArrayList;
@@ -33,37 +45,21 @@ import de.keyboardsurfer.android.widget.crouton.Style;
 
 import static com.yanclement.geophone.R.id.btn_search;
 
-/**
- * TODO LIST
- * persistant listview
- * custom adapter with more details
- * deleting items
- * clear history (deleting all items)
- */
-
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private AutoCompleteTextView actvContact;
     private Button btnSearch;
     private ListView lvPreviousSearch;
-
     private HashMap<String,String> mapContacts;
     private String phoneSelected;
     private String contactSelected;
-
     private ArrayList<String> listPreviousSearch;
-
     private ArrayAdapter<String> adapterLV;
-
     private final boolean SMS_SENDING_FEATURE=true;
     private final boolean SMS_RECEIVING_FEATURE=true;
-
     public boolean isFirstStart;
-
     private SMSBroadcastReceiver broadcastReceiver;
-
     private ProgressDialog progressDialog;
-
     private LocationUtils locationUtils;
 
     @Override
@@ -71,7 +67,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Logger.enableLog();
-
 
         //  Declare a new thread to do a preference check
         Thread t = new Thread(new Runnable() {
@@ -86,10 +81,6 @@ public class MainActivity extends AppCompatActivity {
                 //  If the activity has never started before...
                 if (isFirstStart) {
 
-                    //  Launch app intro
-                    Intent i = new Intent(MainActivity.this, IntroActivity.class);
-                    startActivity(i);
-
                     //  Make a new preferences editor
                     SharedPreferences.Editor e = getPrefs.edit();
 
@@ -98,6 +89,12 @@ public class MainActivity extends AppCompatActivity {
 
                     //  Apply changes
                     e.apply();
+
+                    //  Launch app intro
+                    Intent i = new Intent(MainActivity.this, IntroActivity.class);
+                    startActivity(i);
+
+
                 }
             }
         });
@@ -110,6 +107,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
+
     @Override
     public void onDestroy(){
         super.onDestroy();
@@ -121,13 +120,13 @@ public class MainActivity extends AppCompatActivity {
      * Ask for permission if one of them is not
      */
     private void permissionManagement(){
-        int permissionCheckReadContact=ContextCompat.checkSelfPermission(this,Manifest.permission.READ_CONTACTS);
-        int permissionCheckReceiveSMS = ContextCompat.checkSelfPermission(this,Manifest.permission.RECEIVE_SMS);
-        int permissionCheckReadSMS = ContextCompat.checkSelfPermission(this,Manifest.permission.READ_SMS);
-        int permissionCheckFineLocation = ContextCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION);
-        int permissionCheckCoarseLocation = ContextCompat.checkSelfPermission(this,Manifest.permission.ACCESS_COARSE_LOCATION);
+        int permissionCheckReadContact= ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_CONTACTS);
+        int permissionCheckReceiveSMS = ContextCompat.checkSelfPermission(this, android.Manifest.permission.RECEIVE_SMS);
+        int permissionCheckReadSMS = ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_SMS);
+        int permissionCheckFineLocation = ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION);
+        int permissionCheckCoarseLocation = ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION);
 
-        if( permissionCheckReadSMS==PackageManager.PERMISSION_GRANTED &&
+        if( permissionCheckReadSMS== PackageManager.PERMISSION_GRANTED &&
                 permissionCheckReceiveSMS==PackageManager.PERMISSION_GRANTED &&
                 permissionCheckReadContact==PackageManager.PERMISSION_GRANTED &&
                 permissionCheckFineLocation==PackageManager.PERMISSION_GRANTED &&
@@ -138,11 +137,11 @@ public class MainActivity extends AppCompatActivity {
                 permissionCheckReadContact==PackageManager.PERMISSION_DENIED ||
                 permissionCheckFineLocation==PackageManager.PERMISSION_DENIED ||
                 permissionCheckCoarseLocation==PackageManager.PERMISSION_DENIED){
-            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.READ_SMS,
-                    Manifest.permission.RECEIVE_SMS,
-                    Manifest.permission.READ_CONTACTS,
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION}, Constants.ID_PERMISSION_REQUEST);
+            ActivityCompat.requestPermissions(this,new String[]{android.Manifest.permission.READ_SMS,
+                    android.Manifest.permission.RECEIVE_SMS,
+                    android.Manifest.permission.READ_CONTACTS,
+                    android.Manifest.permission.ACCESS_FINE_LOCATION,
+                    android.Manifest.permission.ACCESS_COARSE_LOCATION}, Constants.ID_PERMISSION_REQUEST);
         }
     }
 
@@ -151,6 +150,7 @@ public class MainActivity extends AppCompatActivity {
      * Trigger the init for each part
      */
     private void initApplication(){
+        initNavigationDrawer();
         initBroadcastReceiver();
         initContactMap();
         initListView();
@@ -160,14 +160,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
+     * Init the navigation drawer
+     */
+    private void initNavigationDrawer(){
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+    }
+
+    /**
      * Init and fill the map contact with the contact names and phones
      */
     private void initContactMap(){
         mapContacts = ContactManager.getContacts(getContentResolver());
-    }
-
-    private void showProgressDialog(){
-        progressDialog = ProgressDialog.show(this, getResources().getString(R.string.progress_dialog_title),getResources().getString(R.string.progress_dialog_message), true);
     }
 
     /**
@@ -287,13 +300,22 @@ public class MainActivity extends AppCompatActivity {
 
 
                     Crouton.makeText(MainActivity.this, getResources().getString(R.string.crouton_msg_sended), Style.CONFIRM).show();
-                    showProgressDialog();
+                    progressDialog = ProgressDialog.show(MainActivity.this, getResources().getString(R.string.progress_dialog_title),getResources().getString(R.string.progress_dialog_message), true);
                 }else{
                     DialogManager.inputInvalid(MainActivity.this);
                 }
 
             }
         });
+
+        /*btnSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivityEx.this,OverLockScreenActivity.class);
+                startActivity(intent);
+
+            }
+        });*/
     }
 
     /**
@@ -324,12 +346,18 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Send an sms if SMS_SENDING_FEATURE=true
+     * @param phone  phone to send the message
+     * @param message message to send
+     */
     private void sendSMS(String phone, String message){
         if(SMS_SENDING_FEATURE) {
             SmsManager smsManager = SmsManager.getDefault();
             smsManager.sendTextMessage(phone, null, message, null, null);
         }
     }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
@@ -347,5 +375,38 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
 
+    @SuppressWarnings("StatementWithEmptyBody")
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        // Handle navigation view item clicks here.
+        int id = item.getItemId();
+
+        if (id == R.id.nav_camera) {
+            // Handle the camera action
+        } else if (id == R.id.nav_gallery) {
+
+        } else if (id == R.id.nav_slideshow) {
+
+        } else if (id == R.id.nav_manage) {
+
+        } else if (id == R.id.nav_share) {
+
+        } else if (id == R.id.nav_send) {
+
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
+    }
 }

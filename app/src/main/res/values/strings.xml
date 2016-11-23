@@ -1,11 +1,30 @@
 <resources>
+    <!--
+        General strings
+    -->
     <string name="app_name">GeoPhone</string>
     <string name="service_name">ServiceListenerSMS</string>
     <string name="app_intro">IntroActivity</string>
+    <string name="title_activity_main">MainActivity</string>
     <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyA7qBQd6wKTJ_q7hvSKVtoKIUFoXcQHJeg</string>
-    <string name="actv_hint"><font size="14">Taper un contact/numéro</font></string>
+    <string name="title_activity_maps">Map</string>
+    <string name="title_activity_over_lock_screen">OverLockScreenActivity</string>
+
+    <!--
+        Strings for general gui use
+    -->
+    <string name="actv_hint">
+        <font size="14">Taper un contact/numéro</font>
+    </string>
     <string name="crouton_msg_sended">Message envoyé !</string>
     <string name="crouton_permission_denied">Permission refusée</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_label">Réglages</string>
+
+    <!--
+        String for dialog use
+    -->
     <string name="dialog_permission_title">Permissions refusées</string>
     <string name="dialog_permission_message">L\'application ne peut fonctionner sans ces permissions. Allez dans la menu Autorisations pour donner à GeoPhone les droits nécessaires</string>
     <string name="dialog_permission_posbtn">Paramètres</string>
@@ -15,5 +34,9 @@
     <string name="dialog_bad_input_btn">Ok</string>
     <string name="progress_dialog_title">SMS envoyé</string>
     <string name="progress_dialog_message">En attente d\'une réponse...</string>
-    <string name="title_activity_maps">Map</string>
+
+    <!--
+        Divers
+    -->
+    <string name="dummy_content">DUMMY\nCONTENT</string>
 </resources>
