@@ -1,5 +1,6 @@
 package com.yanclement.geophone.activity;
 
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -53,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private HashMap<String,String> mapContacts;
     private String phoneSelected;
     private String contactSelected;
+    private String labelSearchedPhoneAlert="JE SUIS LA";
     private ArrayList<String> listPreviousSearch;
     private ArrayAdapter<String> adapterLV;
     private final boolean SMS_SENDING_FEATURE=true;
@@ -61,6 +63,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private SMSBroadcastReceiver broadcastReceiver;
     private ProgressDialog progressDialog;
     private LocationUtils locationUtils;
+    private boolean flashStatus=false;
+    private boolean soundStatus=false;
+    private boolean vibrateStatus=false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,23 +130,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int permissionCheckReadSMS = ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_SMS);
         int permissionCheckFineLocation = ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION);
         int permissionCheckCoarseLocation = ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION);
+        int permissionCheckCamera = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
 
         if( permissionCheckReadSMS== PackageManager.PERMISSION_GRANTED &&
                 permissionCheckReceiveSMS==PackageManager.PERMISSION_GRANTED &&
                 permissionCheckReadContact==PackageManager.PERMISSION_GRANTED &&
                 permissionCheckFineLocation==PackageManager.PERMISSION_GRANTED &&
-                permissionCheckCoarseLocation==PackageManager.PERMISSION_GRANTED){
+                permissionCheckCoarseLocation==PackageManager.PERMISSION_GRANTED &&
+                permissionCheckCamera==PackageManager.PERMISSION_GRANTED){
             initApplication();
         }else if(permissionCheckReadSMS==PackageManager.PERMISSION_DENIED ||
                 permissionCheckReceiveSMS==PackageManager.PERMISSION_DENIED ||
                 permissionCheckReadContact==PackageManager.PERMISSION_DENIED ||
                 permissionCheckFineLocation==PackageManager.PERMISSION_DENIED ||
-                permissionCheckCoarseLocation==PackageManager.PERMISSION_DENIED){
+                permissionCheckCoarseLocation==PackageManager.PERMISSION_DENIED ||
+                permissionCheckCamera==PackageManager.PERMISSION_DENIED){
             ActivityCompat.requestPermissions(this,new String[]{android.Manifest.permission.READ_SMS,
                     android.Manifest.permission.RECEIVE_SMS,
                     android.Manifest.permission.READ_CONTACTS,
                     android.Manifest.permission.ACCESS_FINE_LOCATION,
-                    android.Manifest.permission.ACCESS_COARSE_LOCATION}, Constants.ID_PERMISSION_REQUEST);
+                    android.Manifest.permission.ACCESS_COARSE_LOCATION,
+                    android.Manifest.permission.CAMERA}, Constants.ID_PERMISSION_REQUEST);
         }
     }
 
@@ -206,6 +215,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             response.append(";");
                             response.append(lastLocation.getLongitude());
                             sendSMS(phone,response.toString());
+
+                            Intent intent = new Intent(MainActivity.this,OverLockScreenActivity.class);
+                            intent.putExtra(Constants.SEARCHED_PHONE_TEXT_ALERT,labelSearchedPhoneAlert);
+                            intent.putExtra(Constants.SEARCHED_PHONE_FLASH_STATUS,flashStatus);
+                            intent.putExtra(Constants.SEARCHED_PHONE_SOUND_STATUS,soundStatus);
+                            intent.putExtra(Constants.SEARCHED_PHONE_VIBRATE_STATUS,vibrateStatus);
+                            startActivity(intent);
+
                         }
 
                         if(message.substring(Constants.SMS_CMD_TAG.length()).startsWith(Constants.SMS_CMD_COO_GPS_RESPONSE)){
@@ -391,22 +408,40 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+        if (id == R.id.nav_alert_text) {
+            String str = DialogManager.alertTextLabel(this,labelSearchedPhoneAlert);
+            if(str!=null){
+                labelSearchedPhoneAlert=str;
+            }
+            DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+            drawer.closeDrawer(GravityCompat.START);
+        } else if (id == R.id.nav_setting_flash) {
+            if(flashStatus){
+                flashStatus=false;
+                item.setTitle(R.string.menu_item_flash_off);
+            }else{
+                flashStatus=true;
+                item.setTitle(R.string.menu_item_flash_on);
+            }
+        } else if (id == R.id.nav_setting_sound) {
+            if(soundStatus){
+                soundStatus=false;
+                item.setTitle(R.string.menu_item_sound_off);
+            }else{
+                soundStatus=true;
+                item.setTitle(R.string.menu_item_sound_on);
+            }
+        } else if (id == R.id.nav_setting_vibrate) {
+            if(vibrateStatus){
+                vibrateStatus=false;
+                item.setTitle(R.string.menu_item_vibrate_off);
+            }else{
+                vibrateStatus=true;
+                item.setTitle(R.string.menu_item_vibrate_on);
+            }
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
+
         return true;
     }
 }

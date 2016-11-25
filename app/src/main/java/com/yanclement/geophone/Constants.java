@@ -16,6 +16,10 @@ public class Constants {
 
     public static final String SEARCHED_PHONE_LOCATION="SEARCHED_PHONE_LOCATION";
     public static final String SEARCHED_PHONE_ID="SEARCHED_PHONE_ID";
+    public static final String SEARCHED_PHONE_TEXT_ALERT="TEXT_ALERT";
+    public static final String SEARCHED_PHONE_FLASH_STATUS="FLASH_STATUS";
+    public static final String SEARCHED_PHONE_SOUND_STATUS="SOUND_STATUS";
+    public static final String SEARCHED_PHONE_VIBRATE_STATUS="VIBRATE_STATUS";
 
     /**
      * Permission request identifier

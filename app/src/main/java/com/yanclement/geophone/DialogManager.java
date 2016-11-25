@@ -6,12 +6,17 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.provider.Settings;
+import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.FrameLayout;
 
 /**
  * Created by YPierru on 22/11/2016.
  */
 
 public class DialogManager {
+
+    private static String newLabel;
 
     /**
      * Show the AlertDialog displayed if user deny permissions
@@ -65,6 +70,40 @@ public class DialogManager {
                 .setCancelable(true)
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
+    }
+
+    public static String alertTextLabel(final Activity activity,String currentLabel){
+        final EditText edittext = new EditText(activity);
+        edittext.setText(currentLabel);
+        edittext.setSingleLine();
+
+        FrameLayout container = new FrameLayout(activity);
+        FrameLayout.LayoutParams params = new  FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.leftMargin=70;
+        params.rightMargin=70;
+        edittext.setLayoutParams(params);
+        container.addView(edittext);
+
+        new AlertDialog.Builder(activity)
+                .setTitle(activity.getResources().getString(R.string.dialog_alert_text_title))
+                .setMessage(activity.getResources().getString(R.string.dialog_alert_text_message))
+                .setView(container)
+                .setPositiveButton(activity.getResources().getString(R.string.dialog_alert_text_pos_btn), new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        newLabel=edittext.getText().toString();
+                        dialog.dismiss();
+                    }
+                })
+                .setNegativeButton(activity.getResources().getString(R.string.dialog_alert_text_neg_btn), new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        newLabel=null;
+                    }
+                })
+                .setCancelable(true)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
+
+        return newLabel;
     }
 
 }

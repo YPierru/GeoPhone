@@ -1,8 +1,9 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fl_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0099cc"
+    android:background="#000000"
     tools:context="com.yanclement.geophone.activity.OverLockScreenActivity">
 
     <!-- The primary full-screen view. This can be replaced with whatever view
@@ -14,8 +15,7 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:keepScreenOn="true"
-        android:text="@string/dummy_content"
-        android:textColor="#33b5e5"
+        android:textColor="#ffffff"
         android:textSize="50sp"
         android:textStyle="bold" />
 

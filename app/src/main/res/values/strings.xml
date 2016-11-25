@@ -34,6 +34,21 @@
     <string name="dialog_bad_input_btn">Ok</string>
     <string name="progress_dialog_title">SMS envoyé</string>
     <string name="progress_dialog_message">En attente d\'une réponse...</string>
+    <string name="dialog_alert_text_title">Modification du message d\'alerte</string>
+    <string name="dialog_alert_text_message">Le message affiché sur le téléphone cherché est le suivant : </string>
+    <string name="dialog_alert_text_pos_btn">Modifier</string>
+    <string name="dialog_alert_text_neg_btn">Annuler</string>
+
+    <!--
+        Item menu label
+    -->
+    <string name="menu_item_labelalert">Text d\'alerte</string>
+    <string name="menu_item_flash_on">Flash [ON]</string>
+    <string name="menu_item_flash_off">Flash [OFF]</string>
+    <string name="menu_item_sound_on">Sonnerie [ON]</string>
+    <string name="menu_item_sound_off">Sonnerie [OFF]</string>
+    <string name="menu_item_vibrate_on">Vibration [ON]</string>
+    <string name="menu_item_vibrate_off">Vibration [OFF]</string>
 
     <!--
         Divers
