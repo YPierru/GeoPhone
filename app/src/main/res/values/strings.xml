@@ -5,7 +5,7 @@
     <string name="app_name">GeoPhone</string>
     <string name="service_name">ServiceListenerSMS</string>
     <string name="app_intro">IntroActivity</string>
-    <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_main">GeoPhone</string>
     <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyA7qBQd6wKTJ_q7hvSKVtoKIUFoXcQHJeg</string>
     <string name="title_activity_maps">Map</string>
     <string name="title_activity_over_lock_screen">OverLockScreenActivity</string>
@@ -21,6 +21,8 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_label">Réglages</string>
+    <string name="btn_stop_search">Trouvé !</string>
+    <string name="send_email">Envoyer un mail</string>
 
     <!--
         String for dialog use
@@ -51,7 +53,27 @@
     <string name="menu_item_vibrate_off">Vibration [OFF]</string>
 
     <!--
-        Divers
+        Drawet Layout Item
     -->
-    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="dl_item_alert_text">Texte de l\'alerte : </string>
+    <string name="dl_item_main_activity">Chercher un téléphone</string>
+    <string name="dl_item_settings_label">Paramètres de l\'alerte</string>
+    <string name="dl_item_vibrator">Vibreur</string>
+    <string name="dl_item_flash">Flash</string>
+    <string name="dl_item_ringtone">Sonnerie</string>
+    <string name="dl_item_about_label">A propos</string>
+    <string name="dl_item_source_code">Sources</string>
+    <string name="dl_item_contact">Contact</string>
+
+
+
+
+
+
+
+
+
+
+
+
 </resources>

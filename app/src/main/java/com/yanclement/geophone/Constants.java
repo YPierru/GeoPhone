@@ -30,4 +30,11 @@ public class Constants {
     public static final String ID_BEHAVIOR_MAINACTIVITY="MAINACTIVITY_BEHAVIOR";
     public static final String KEY_BEHAVIOR_MAINACTIVITY_FROM_APPINTRO="FROM_APPINTRO";
 
+    public static final int ID_DL_ITEM_MAIN_ACTIVITY=1;
+    public static final int ID_DL_ITEM_CONTACT_ACTIVITY=2;
+    public static final int ID_DL_ITEM_ALERT_TEXT=3;
+    public static final int ID_DL_ITEM_VIBRATOR=4;
+    public static final int ID_DL_ITEM_FLASH=5;
+    public static final int ID_DL_ITEM_RINGTONE=6;
+
 }

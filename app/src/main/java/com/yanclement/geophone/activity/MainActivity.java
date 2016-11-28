@@ -5,15 +5,12 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -26,8 +23,21 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ListView;
 
+import com.mikepenz.google_material_typeface_library.GoogleMaterial;
+import com.mikepenz.materialdrawer.AccountHeader;
+import com.mikepenz.materialdrawer.AccountHeaderBuilder;
+import com.mikepenz.materialdrawer.Drawer;
+import com.mikepenz.materialdrawer.DrawerBuilder;
+import com.mikepenz.materialdrawer.interfaces.OnCheckedChangeListener;
+import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
+import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
+import com.mikepenz.materialdrawer.model.SectionDrawerItem;
+import com.mikepenz.materialdrawer.model.SwitchDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.Nameable;
 import com.yanclement.geophone.Constants;
 import com.yanclement.geophone.ContactManager;
 import com.yanclement.geophone.DialogManager;
@@ -35,7 +45,6 @@ import com.yanclement.geophone.LocationUtils;
 import com.yanclement.geophone.Logger;
 import com.yanclement.geophone.R;
 import com.yanclement.geophone.SMSBroadcastReceiver;
-import com.yanclement.geophone.intro.IntroActivity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,7 +55,12 @@ import de.keyboardsurfer.android.widget.crouton.Style;
 
 import static com.yanclement.geophone.R.id.btn_search;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity {
+    //save our header or result
+    private AccountHeader headerResult = null;
+    private Drawer result = null;
+    private Bundle savedInstanceState;
+
 
     private AutoCompleteTextView actvContact;
     private Button btnSearch;
@@ -59,7 +73,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ArrayAdapter<String> adapterLV;
     private final boolean SMS_SENDING_FEATURE=true;
     private final boolean SMS_RECEIVING_FEATURE=true;
-    public boolean isFirstStart;
+    public boolean isFirstStart=true;
     private SMSBroadcastReceiver broadcastReceiver;
     private ProgressDialog progressDialog;
     private LocationUtils locationUtils;
@@ -67,14 +81,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private boolean soundStatus=false;
     private boolean vibrateStatus=false;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.savedInstanceState=savedInstanceState;
         setContentView(R.layout.activity_main);
+
         Logger.enableLog();
 
+
         //  Declare a new thread to do a preference check
-        Thread t = new Thread(new Runnable() {
+        /*Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
                 //  Initialize SharedPreferences
@@ -105,19 +123,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
 
         // Start the thread
-        t.start();
+        t.start();*/
 
-        if(!isFirstStart) {
+        //if(!isFirstStart) {
             permissionManagement();
-        }
-    }
+        //}
 
-
-
-    @Override
-    public void onDestroy(){
-        super.onDestroy();
-        Crouton.cancelAllCroutons();
     }
 
     /**
@@ -161,36 +172,144 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void initApplication(){
         initNavigationDrawer();
         initBroadcastReceiver();
-        initContactMap();
+        mapContacts = ContactManager.getContacts(getContentResolver());
         initListView();
         initAutoCompleteTextView();
         initButton();
         locationUtils = new LocationUtils(getApplicationContext());
     }
 
-    /**
-     * Init the navigation drawer
-     */
     private void initNavigationDrawer(){
+        // Handle Toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        //toolbar.setTitle(getString(R.string.app_name));
         setSupportActionBar(toolbar);
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        // Create the AccountHeader
+        headerResult = new AccountHeaderBuilder()
+                .withActivity(this)
+                .withCompactStyle(true)
+                .withHeaderBackground(R.drawable.header)
+                .withSavedInstance(savedInstanceState)
+                .build();
+
+
+        //Create the drawer
+        result = new DrawerBuilder()
+                .withActivity(this)
+                .withHasStableIds(true)
+                .withAccountHeader(headerResult) //set the AccountHeader we created earlier for the header
+                .addDrawerItems(
+                        new PrimaryDrawerItem()
+                                .withName(getString(R.string.dl_item_main_activity))
+                                .withIcon(GoogleMaterial.Icon.gmd_search)
+                                .withIdentifier(Constants.ID_DL_ITEM_MAIN_ACTIVITY),
+                        new PrimaryDrawerItem()
+                                .withName(getString(R.string.dl_item_contact))
+                                .withIcon(GoogleMaterial.Icon.gmd_folder_person)
+                                .withIdentifier(Constants.ID_DL_ITEM_CONTACT_ACTIVITY),
+
+                        new SectionDrawerItem()
+                                .withName(getString(R.string.dl_item_settings_label)),
+                        new PrimaryDrawerItem()
+                                .withName(getString(R.string.dl_item_alert_text)+"\"" + labelSearchedPhoneAlert+"\"")
+                                .withIcon(GoogleMaterial.Icon.gmd_text_format)
+                                .withIdentifier(Constants.ID_DL_ITEM_ALERT_TEXT),
+                        new SwitchDrawerItem()
+                                .withName(getString(R.string.dl_item_vibrator))
+                                .withIcon(GoogleMaterial.Icon.gmd_vibration)
+                                .withOnCheckedChangeListener(onCheckedChangeListener)
+                                .withIdentifier(Constants.ID_DL_ITEM_VIBRATOR),
+                        new SwitchDrawerItem()
+                                .withName(getString(R.string.dl_item_flash))
+                                .withIcon(GoogleMaterial.Icon.gmd_flash)
+                                .withOnCheckedChangeListener(onCheckedChangeListener)
+                                .withIdentifier(Constants.ID_DL_ITEM_FLASH),
+                        new SwitchDrawerItem()
+                                .withName(getString(R.string.dl_item_ringtone))
+                                .withIcon(GoogleMaterial.Icon.gmd_phone_ring)
+                                .withOnCheckedChangeListener(onCheckedChangeListener)
+                                .withIdentifier(Constants.ID_DL_ITEM_RINGTONE),
+
+                        new SectionDrawerItem().
+                                withName(getString(R.string.dl_item_about_label)),
+                        new SecondaryDrawerItem()
+                                .withName(getString(R.string.dl_item_source_code))
+                                .withIcon(GoogleMaterial.Icon.gmd_github),
+                        new SecondaryDrawerItem()
+                                .withName(getString(R.string.dl_item_contact))
+                                .withIcon(GoogleMaterial.Icon.gmd_mail_send)
+                )
+                .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
+                    @Override
+                    public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
+                        if (drawerItem instanceof Nameable && drawerItem != null) {
+                            Nameable nameable = (Nameable)drawerItem;
+
+                            if(drawerItem.getIdentifier()==Constants.ID_DL_ITEM_ALERT_TEXT){
+                                String str = DialogManager.alertTextLabel(MainActivity.this,labelSearchedPhoneAlert);
+                                if(str!=null){
+                                    labelSearchedPhoneAlert=str;
+                                }
+                                PrimaryDrawerItem pdi = (PrimaryDrawerItem) drawerItem;
+                                pdi.withName(getString(R.string.dl_item_alert_text)+"\"" + labelSearchedPhoneAlert+"\"");
+                                result.updateItem(pdi);
+                            }else if(nameable.getName().toString().equals(getString(R.string.dl_item_source_code))){
+                                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.github.com/ypierru/geophone"));
+                                startActivity(browserIntent);
+                            }else if(nameable.getName().toString().equals(getString(R.string.dl_item_contact))){
+                                Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto","pierru@edu.ece.fr", null));
+                                startActivity(Intent.createChooser(emailIntent, getString(R.string.send_email)));
+                            }
+
+                        }
+
+                        return false;
+                    }
+                })
+                .withSelectedItem(Constants.ID_DL_ITEM_MAIN_ACTIVITY)
+                .withSavedInstance(savedInstanceState)
+                .build();
+
+        result.openDrawer();
+
+        DrawerLayout drawer = result.getDrawerLayout();
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+
     }
 
-    /**
-     * Init and fill the map contact with the contact names and phones
-     */
-    private void initContactMap(){
-        mapContacts = ContactManager.getContacts(getContentResolver());
-    }
+    private OnCheckedChangeListener onCheckedChangeListener = new OnCheckedChangeListener() {
+        @Override
+        public void onCheckedChanged(IDrawerItem drawerItem, CompoundButton buttonView, boolean isChecked) {
+            SwitchDrawerItem sdi;
+            if(drawerItem!=null){
+                sdi=(SwitchDrawerItem)drawerItem;
+                if(drawerItem.getIdentifier()==Constants.ID_DL_ITEM_VIBRATOR){
+                    if(sdi.isChecked()){
+                        vibrateStatus=true;
+                    }else{
+                        vibrateStatus=false;
+                    }
+                }else if(drawerItem.getIdentifier()==Constants.ID_DL_ITEM_FLASH){
+                    if(sdi.isChecked()){
+                        flashStatus=true;
+                    }else{
+                        flashStatus=false;
+                    }
+                }else if(drawerItem.getIdentifier()==Constants.ID_DL_ITEM_RINGTONE){
+                    if(sdi.isChecked()){
+                        soundStatus=true;
+                    }else{
+                        soundStatus=false;
+                    }
+                }
+            }
+        }
+    };
+
 
     /**
      * Start the broadcast receiver
@@ -325,12 +444,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-        /*btnSearch.setOnClickListener(new View.OnClickListener() {
+       /* btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivityEx.this,OverLockScreenActivity.class);
+                Intent intent = new Intent(MainActivity.this,MainActivity.class);
                 startActivity(intent);
-
             }
         });*/
     }
@@ -392,56 +510,36 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+   /* @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        //add the values which need to be saved from the drawer to the bundle
+        outState = result.saveInstanceState(outState);
+        //add the values which need to be saved from the accountHeader to the bundle
+        outState = headerResult.saveInstanceState(outState);
+        super.onSaveInstanceState(outState);
+    }*/
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        //handle the click on the back arrow click
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
+        //handle the back press :D close the drawer first and if the drawer is closed close the activity
+        if (result != null && result.isDrawerOpen()) {
+            result.closeDrawer();
         } else {
             super.onBackPressed();
         }
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        if (id == R.id.nav_alert_text) {
-            String str = DialogManager.alertTextLabel(this,labelSearchedPhoneAlert);
-            if(str!=null){
-                labelSearchedPhoneAlert=str;
-            }
-            DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-            drawer.closeDrawer(GravityCompat.START);
-        } else if (id == R.id.nav_setting_flash) {
-            if(flashStatus){
-                flashStatus=false;
-                item.setTitle(R.string.menu_item_flash_off);
-            }else{
-                flashStatus=true;
-                item.setTitle(R.string.menu_item_flash_on);
-            }
-        } else if (id == R.id.nav_setting_sound) {
-            if(soundStatus){
-                soundStatus=false;
-                item.setTitle(R.string.menu_item_sound_off);
-            }else{
-                soundStatus=true;
-                item.setTitle(R.string.menu_item_sound_on);
-            }
-        } else if (id == R.id.nav_setting_vibrate) {
-            if(vibrateStatus){
-                vibrateStatus=false;
-                item.setTitle(R.string.menu_item_vibrate_off);
-            }else{
-                vibrateStatus=true;
-                item.setTitle(R.string.menu_item_vibrate_on);
-            }
-        }
-
-
-        return true;
-    }
 }

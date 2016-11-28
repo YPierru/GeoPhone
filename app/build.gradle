@@ -29,6 +29,13 @@ dependencies {
         exclude group: 'com.google.android', module: 'support-v4'
     }
     compile 'com.github.paolorotolo:appintro:4.1.0'
+    compile('com.mikepenz:crossfadedrawerlayout:1.0.0@aar')
+    compile 'com.mikepenz:google-material-typeface:2.2.0.1@aar'
+    compile 'com.mikepenz:fontawesome-typeface:4.6.0.3@aar'
+    compile 'com.mikepenz:octicons-typeface:3.0.0.1@aar'
+    compile('com.mikepenz:materialdrawer:5.8.0@aar') {
+        transitive = true
+    }
     compile 'com.android.support:appcompat-v7:24.2.1'
     compile 'com.google.android.gms:play-services:9.8.0'
     compile 'com.android.support:design:24.2.1'
