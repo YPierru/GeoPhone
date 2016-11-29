@@ -205,7 +205,7 @@ public class MainActivity extends AppCompatActivity {
                                 .withIcon(GoogleMaterial.Icon.gmd_search)
                                 .withIdentifier(Constants.ID_DL_ITEM_MAIN_ACTIVITY),
                         new PrimaryDrawerItem()
-                                .withName(getString(R.string.dl_item_contact))
+                                .withName(getString(R.string.dl_item_list_contacts))
                                 .withIcon(GoogleMaterial.Icon.gmd_folder_person)
                                 .withIdentifier(Constants.ID_DL_ITEM_CONTACT_ACTIVITY),
 
@@ -214,22 +214,26 @@ public class MainActivity extends AppCompatActivity {
                         new PrimaryDrawerItem()
                                 .withName(getString(R.string.dl_item_alert_text)+"\"" + labelSearchedPhoneAlert+"\"")
                                 .withIcon(GoogleMaterial.Icon.gmd_text_format)
-                                .withIdentifier(Constants.ID_DL_ITEM_ALERT_TEXT),
+                                .withIdentifier(Constants.ID_DL_ITEM_ALERT_TEXT)
+                                .withSelectable(false),
                         new SwitchDrawerItem()
                                 .withName(getString(R.string.dl_item_vibrator))
                                 .withIcon(GoogleMaterial.Icon.gmd_vibration)
                                 .withOnCheckedChangeListener(onCheckedChangeListener)
-                                .withIdentifier(Constants.ID_DL_ITEM_VIBRATOR),
+                                .withIdentifier(Constants.ID_DL_ITEM_VIBRATOR)
+                                .withSelectable(false),
                         new SwitchDrawerItem()
                                 .withName(getString(R.string.dl_item_flash))
                                 .withIcon(GoogleMaterial.Icon.gmd_flash)
                                 .withOnCheckedChangeListener(onCheckedChangeListener)
-                                .withIdentifier(Constants.ID_DL_ITEM_FLASH),
+                                .withIdentifier(Constants.ID_DL_ITEM_FLASH)
+                                .withSelectable(false),
                         new SwitchDrawerItem()
                                 .withName(getString(R.string.dl_item_ringtone))
                                 .withIcon(GoogleMaterial.Icon.gmd_phone_ring)
                                 .withOnCheckedChangeListener(onCheckedChangeListener)
-                                .withIdentifier(Constants.ID_DL_ITEM_RINGTONE),
+                                .withIdentifier(Constants.ID_DL_ITEM_RINGTONE)
+                                .withSelectable(false),
 
                         new SectionDrawerItem().
                                 withName(getString(R.string.dl_item_about_label)),
@@ -254,6 +258,8 @@ public class MainActivity extends AppCompatActivity {
                                 PrimaryDrawerItem pdi = (PrimaryDrawerItem) drawerItem;
                                 pdi.withName(getString(R.string.dl_item_alert_text)+"\"" + labelSearchedPhoneAlert+"\"");
                                 result.updateItem(pdi);
+                            }else if(drawerItem.getIdentifier()==Constants.ID_DL_ITEM_CONTACT_ACTIVITY){
+                                startActivity(new Intent(MainActivity.this,WhiteListActivity.class));
                             }else if(nameable.getName().toString().equals(getString(R.string.dl_item_source_code))){
                                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.github.com/ypierru/geophone"));
                                 startActivity(browserIntent);
@@ -518,6 +524,15 @@ public class MainActivity extends AppCompatActivity {
         outState = headerResult.saveInstanceState(outState);
         super.onSaveInstanceState(outState);
     }*/
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if (result != null) {
+            result.setSelection(Constants.ID_DL_ITEM_MAIN_ACTIVITY);
+        }
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
