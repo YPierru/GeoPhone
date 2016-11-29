@@ -37,4 +37,6 @@ public class Constants {
     public static final int ID_DL_ITEM_FLASH=5;
     public static final int ID_DL_ITEM_RINGTONE=6;
 
+
+    public static final String LABEL_UNKNOW_CONTACT="Inconnu";
 }

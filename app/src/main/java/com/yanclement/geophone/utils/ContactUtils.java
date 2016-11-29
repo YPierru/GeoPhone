@@ -1,4 +1,4 @@
-package com.yanclement.geophone;
+package com.yanclement.geophone.utils;
 
 import android.content.ContentResolver;
 import android.database.Cursor;
@@ -13,7 +13,7 @@ import java.util.HashMap;
 /**
  * This class is used to retrieve the couple contact/phone in a HashMap
  */
-public class ContactManager {
+public class ContactUtils {
 
 
 

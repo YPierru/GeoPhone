@@ -1,4 +1,4 @@
-package com.yanclement.geophone;
+package com.yanclement.geophone.utils;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -10,11 +10,13 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 
+import com.yanclement.geophone.R;
+
 /**
  * Created by YPierru on 22/11/2016.
  */
 
-public class DialogManager {
+public class DialogUtils {
 
     private static String newLabel;
 

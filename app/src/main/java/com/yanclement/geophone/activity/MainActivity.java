@@ -39,14 +39,17 @@ import com.mikepenz.materialdrawer.model.SwitchDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.Nameable;
 import com.yanclement.geophone.Constants;
-import com.yanclement.geophone.ContactManager;
-import com.yanclement.geophone.DialogManager;
-import com.yanclement.geophone.LocationUtils;
+import com.yanclement.geophone.model.Contact;
+import com.yanclement.geophone.utils.ContactUtils;
+import com.yanclement.geophone.utils.DialogUtils;
+import com.yanclement.geophone.utils.LocationUtils;
 import com.yanclement.geophone.Logger;
 import com.yanclement.geophone.R;
 import com.yanclement.geophone.SMSBroadcastReceiver;
+import com.yanclement.geophone.adapter.PreviousSearchContactAdapter;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.regex.Pattern;
 
@@ -66,13 +69,12 @@ public class MainActivity extends AppCompatActivity {
     private Button btnSearch;
     private ListView lvPreviousSearch;
     private HashMap<String,String> mapContacts;
-    private String phoneSelected;
-    private String contactSelected;
+    private Contact contactSelected;
     private String labelSearchedPhoneAlert="JE SUIS LA";
-    private ArrayList<String> listPreviousSearch;
-    private ArrayAdapter<String> adapterLV;
-    private final boolean SMS_SENDING_FEATURE=true;
-    private final boolean SMS_RECEIVING_FEATURE=true;
+    private ArrayList<Contact> listPreviousSearch;
+    private PreviousSearchContactAdapter previousSearchContactAdapter;
+    private final boolean SMS_SENDING_FEATURE=false;
+    private final boolean SMS_RECEIVING_FEATURE=false;
     public boolean isFirstStart=true;
     private SMSBroadcastReceiver broadcastReceiver;
     private ProgressDialog progressDialog;
@@ -172,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
     private void initApplication(){
         initNavigationDrawer();
         initBroadcastReceiver();
-        mapContacts = ContactManager.getContacts(getContentResolver());
+        mapContacts = ContactUtils.getContacts(getContentResolver());
         initListView();
         initAutoCompleteTextView();
         initButton();
@@ -251,7 +253,7 @@ public class MainActivity extends AppCompatActivity {
                             Nameable nameable = (Nameable)drawerItem;
 
                             if(drawerItem.getIdentifier()==Constants.ID_DL_ITEM_ALERT_TEXT){
-                                String str = DialogManager.alertTextLabel(MainActivity.this,labelSearchedPhoneAlert);
+                                String str = DialogUtils.alertTextLabel(MainActivity.this,labelSearchedPhoneAlert);
                                 if(str!=null){
                                     labelSearchedPhoneAlert=str;
                                 }
@@ -359,10 +361,11 @@ public class MainActivity extends AppCompatActivity {
 
                             Intent intent = new Intent(MainActivity.this, MapsActivity.class);
                             intent.putExtra(Constants.SEARCHED_PHONE_LOCATION,locationReceived);
-                            if(contactSelected!=null)
-                                intent.putExtra(Constants.SEARCHED_PHONE_ID,contactSelected);
+
+                            if(contactSelected.getName().equals(Constants.LABEL_UNKNOW_CONTACT))
+                                intent.putExtra(Constants.SEARCHED_PHONE_ID,contactSelected.getPhone());
                             else
-                                intent.putExtra(Constants.SEARCHED_PHONE_ID,phoneSelected);
+                                intent.putExtra(Constants.SEARCHED_PHONE_ID,contactSelected.getName());
 
                             startActivity(intent);
 
@@ -383,18 +386,20 @@ public class MainActivity extends AppCompatActivity {
     private void initListView(){
         listPreviousSearch=new ArrayList<>();
         lvPreviousSearch=(ListView)findViewById(R.id.lv_previous_search);
-        adapterLV = new ArrayAdapter<>(MainActivity.this,android.R.layout.simple_list_item_1, listPreviousSearch);
-        lvPreviousSearch.setAdapter(adapterLV);
+        previousSearchContactAdapter = new PreviousSearchContactAdapter(listPreviousSearch,MainActivity.this);
+        lvPreviousSearch.setAdapter(previousSearchContactAdapter);
 
         lvPreviousSearch.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String data=(String)parent.getItemAtPosition(position);
+                Contact contact=(Contact)parent.getItemAtPosition(position);
 
-                if(isUserInputAContact(data))
+                actvContact.setText(contact.getName());
+
+                /*if(isUserInputAContact(data))
                     actvContact.setText(contactSelected);
                 else
-                    actvContact.setText(phoneSelected);
+                    actvContact.setText(phoneSelected);*/
 
                 actvContact.dismissDropDown();
             }
@@ -423,28 +428,31 @@ public class MainActivity extends AppCompatActivity {
                 actvContact.setText("");
 
                 if(isValidInput(userInput)){
-                    //Update the listview
-                    if(isUserInputAContact(userInput))
-                        listPreviousSearch.add(contactSelected);
-                    else
-                        listPreviousSearch.add(phoneSelected);
 
-                    adapterLV.notifyDataSetChanged();
+                    if(userInput.startsWith("0")){
+                        contactSelected = new Contact(Constants.LABEL_UNKNOW_CONTACT,userInput, Calendar.getInstance().getTime());
+                    }else{
+                        contactSelected = new Contact(userInput,mapContacts.get(userInput), Calendar.getInstance().getTime());
+                    }
+
+                    listPreviousSearch.add(contactSelected);
+
+                    previousSearchContactAdapter.notifyDataSetChanged();
 
 
                     //Hide the keyboard
                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(actvContact.getWindowToken(), 0);
 
-                    sendSMS(phoneSelected,Constants.SMS_CMD_COO_REQUEST);
+                    sendSMS(contactSelected.getPhone(),Constants.SMS_CMD_COO_REQUEST);
 
-                    Logger.logI("SENDED ["+phoneSelected+"] "+Constants.SMS_CMD_COO_REQUEST);
+                    Logger.logI("SENDED ["+contactSelected.getPhone()+"] "+Constants.SMS_CMD_COO_REQUEST);
 
 
                     Crouton.makeText(MainActivity.this, getResources().getString(R.string.crouton_msg_sended), Style.CONFIRM).show();
-                    progressDialog = ProgressDialog.show(MainActivity.this, getResources().getString(R.string.progress_dialog_title),getResources().getString(R.string.progress_dialog_message), true);
+                    //progressDialog = ProgressDialog.show(MainActivity.this, getResources().getString(R.string.progress_dialog_title),getResources().getString(R.string.progress_dialog_message), true);
                 }else{
-                    DialogManager.inputInvalid(MainActivity.this);
+                    DialogUtils.inputInvalid(MainActivity.this);
                 }
 
             }
@@ -457,21 +465,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });*/
-    }
-
-    /**
-     * set the variable according to the user input
-     * @return true if user wrote a contact, false if wrote a phone number
-     */
-    private boolean isUserInputAContact(String userInput){
-        if(userInput.startsWith("0")){
-            phoneSelected=userInput;
-            return false;
-        }else{
-            contactSelected=userInput;
-            phoneSelected=mapContacts.get(contactSelected);
-            return true;
-        }
     }
 
     /**
@@ -509,7 +502,7 @@ public class MainActivity extends AppCompatActivity {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     initApplication();
                 } else {
-                    DialogManager.permissionsKO(this);
+                    DialogUtils.permissionsKO(this);
                 }
                 return;
             }

@@ -1,4 +1,4 @@
-package com.yanclement.geophone;
+package com.yanclement.geophone.utils;
 
 import android.content.Context;
 import android.location.Location;
