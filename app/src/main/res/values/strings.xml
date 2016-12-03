@@ -67,6 +67,7 @@
     <string name="dl_item_source_code">Sources</string>
     <string name="dl_item_contact">Contact</string>
     <string name="title_activity_main2">Main2Activity</string>
+    <string name="title_activity_intro_to_use">IntroToUseActivity</string>
 
 
 </resources>

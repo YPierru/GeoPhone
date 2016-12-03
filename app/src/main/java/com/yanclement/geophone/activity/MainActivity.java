@@ -1,16 +1,13 @@
 package com.yanclement.geophone.activity;
 
-import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -39,16 +36,18 @@ import com.mikepenz.materialdrawer.model.SwitchDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.Nameable;
 import com.yanclement.geophone.Constants;
-import com.yanclement.geophone.model.Contact;
-import com.yanclement.geophone.utils.ContactUtils;
-import com.yanclement.geophone.utils.DialogUtils;
-import com.yanclement.geophone.utils.LocationUtils;
 import com.yanclement.geophone.Logger;
 import com.yanclement.geophone.R;
 import com.yanclement.geophone.SMSBroadcastReceiver;
-import com.yanclement.geophone.adapter.PreviousSearchContactAdapter;
+import com.yanclement.geophone.adapter.ContactHistoricAdapter;
+import com.yanclement.geophone.dao.ContactHistoricDAO;
+import com.yanclement.geophone.dao.SettingsDAO;
+import com.yanclement.geophone.model.ContactHistoric;
+import com.yanclement.geophone.model.Settings;
+import com.yanclement.geophone.utils.ContactUtils;
+import com.yanclement.geophone.utils.DialogUtils;
+import com.yanclement.geophone.utils.LocationUtils;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.regex.Pattern;
@@ -69,19 +68,19 @@ public class MainActivity extends AppCompatActivity {
     private Button btnSearch;
     private ListView lvPreviousSearch;
     private HashMap<String,String> mapContacts;
-    private Contact contactSelected;
-    private String labelSearchedPhoneAlert="JE SUIS LA";
-    private ArrayList<Contact> listPreviousSearch;
-    private PreviousSearchContactAdapter previousSearchContactAdapter;
+    private ContactHistoric contactSelected;
+
+    private ContactHistoricAdapter contactHistoricAdapter;
+
     private final boolean SMS_SENDING_FEATURE=false;
     private final boolean SMS_RECEIVING_FEATURE=false;
     public boolean isFirstStart=true;
     private SMSBroadcastReceiver broadcastReceiver;
     private ProgressDialog progressDialog;
     private LocationUtils locationUtils;
-    private boolean flashStatus=false;
-    private boolean soundStatus=false;
-    private boolean vibrateStatus=false;
+
+    private ContactHistoricDAO contactHistoricDAO;
+    private SettingsDAO settingsDAO;
 
 
     @Override
@@ -128,8 +127,10 @@ public class MainActivity extends AppCompatActivity {
         t.start();*/
 
         //if(!isFirstStart) {
-            permissionManagement();
+            //permissionManagement();
         //}
+
+        initApplication();
 
     }
 
@@ -137,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
      * At the starting of the app, check if needed permission are granted.
      * Ask for permission if one of them is not
      */
-    private void permissionManagement(){
+    /*private void permissionManagement(){
         int permissionCheckReadContact= ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_CONTACTS);
         int permissionCheckReceiveSMS = ContextCompat.checkSelfPermission(this, android.Manifest.permission.RECEIVE_SMS);
         int permissionCheckReadSMS = ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_SMS);
@@ -165,16 +166,24 @@ public class MainActivity extends AppCompatActivity {
                     android.Manifest.permission.ACCESS_COARSE_LOCATION,
                     android.Manifest.permission.CAMERA}, Constants.ID_PERMISSION_REQUEST);
         }
-    }
+    }*/
 
     /**
      * Most important function
      * Trigger the init for each part
      */
     private void initApplication(){
+        contactHistoricDAO = new ContactHistoricDAO(MainActivity.this);
+        //contactHistoricDAO.addContactHistoric(new ContactHistoric("test","0100000000",Calendar.getInstance().getTime()));
+
+        settingsDAO = new SettingsDAO(MainActivity.this);
+        settingsDAO.saveSetting(new Settings("JE SUIS LA",1,1,1));
+
         initNavigationDrawer();
         initBroadcastReceiver();
         mapContacts = ContactUtils.getContacts(getContentResolver());
+
+
         initListView();
         initAutoCompleteTextView();
         initButton();
@@ -186,6 +195,9 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         //toolbar.setTitle(getString(R.string.app_name));
         setSupportActionBar(toolbar);
+
+        //Current settings
+        Settings settings = settingsDAO.getSettings();
 
         // Create the AccountHeader
         headerResult = new AccountHeaderBuilder()
@@ -214,7 +226,7 @@ public class MainActivity extends AppCompatActivity {
                         new SectionDrawerItem()
                                 .withName(getString(R.string.dl_item_settings_label)),
                         new PrimaryDrawerItem()
-                                .withName(getString(R.string.dl_item_alert_text)+"\"" + labelSearchedPhoneAlert+"\"")
+                                .withName(getString(R.string.dl_item_alert_text)+"\"" + settings.getAlertText() +"\"")
                                 .withIcon(GoogleMaterial.Icon.gmd_text_format)
                                 .withIdentifier(Constants.ID_DL_ITEM_ALERT_TEXT)
                                 .withSelectable(false),
@@ -252,13 +264,16 @@ public class MainActivity extends AppCompatActivity {
                         if (drawerItem instanceof Nameable && drawerItem != null) {
                             Nameable nameable = (Nameable)drawerItem;
 
+                            Settings settings = settingsDAO.getSettings();
+
                             if(drawerItem.getIdentifier()==Constants.ID_DL_ITEM_ALERT_TEXT){
-                                String str = DialogUtils.alertTextLabel(MainActivity.this,labelSearchedPhoneAlert);
+                                String str = DialogUtils.alertTextLabel(MainActivity.this,settings.getAlertText());
                                 if(str!=null){
-                                    labelSearchedPhoneAlert=str;
+                                    settings.setAlertText(str);
+                                    settingsDAO.updateSettings(settings);
                                 }
                                 PrimaryDrawerItem pdi = (PrimaryDrawerItem) drawerItem;
-                                pdi.withName(getString(R.string.dl_item_alert_text)+"\"" + labelSearchedPhoneAlert+"\"");
+                                pdi.withName(getString(R.string.dl_item_alert_text)+"\"" + settings.getAlertText() +"\"");
                                 result.updateItem(pdi);
                             }else if(drawerItem.getIdentifier()==Constants.ID_DL_ITEM_CONTACT_ACTIVITY){
                                 startActivity(new Intent(MainActivity.this,WhiteListActivity.class));
@@ -279,7 +294,29 @@ public class MainActivity extends AppCompatActivity {
                 .withSavedInstance(savedInstanceState)
                 .build();
 
-        result.openDrawer();
+        SwitchDrawerItem sdiFlash = (SwitchDrawerItem)result.getDrawerItem(Constants.ID_DL_ITEM_FLASH);
+        if(settings.getFlash()==1)
+            sdiFlash.withChecked(true);
+        else
+        sdiFlash.withChecked(false);
+
+        SwitchDrawerItem sdiVibrate= (SwitchDrawerItem)result.getDrawerItem(Constants.ID_DL_ITEM_VIBRATOR);
+        if(settings.getVibrate()==1)
+            sdiVibrate.withChecked(true);
+        else
+            sdiVibrate.withChecked(false);
+
+        SwitchDrawerItem sdiRingtone= (SwitchDrawerItem)result.getDrawerItem(Constants.ID_DL_ITEM_RINGTONE);
+        if(settings.getRingtone()==1)
+            sdiRingtone.withChecked(true);
+        else
+            sdiRingtone.withChecked(false);
+
+        result.updateItem(sdiFlash);
+        result.updateItem(sdiVibrate);
+        result.updateItem(sdiRingtone);
+
+        //result.openDrawer();
 
         DrawerLayout drawer = result.getDrawerLayout();
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -293,28 +330,31 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onCheckedChanged(IDrawerItem drawerItem, CompoundButton buttonView, boolean isChecked) {
             SwitchDrawerItem sdi;
+            Settings settings = settingsDAO.getSettings();
             if(drawerItem!=null){
                 sdi=(SwitchDrawerItem)drawerItem;
                 if(drawerItem.getIdentifier()==Constants.ID_DL_ITEM_VIBRATOR){
                     if(sdi.isChecked()){
-                        vibrateStatus=true;
+                        settings.setVibrate(1);
                     }else{
-                        vibrateStatus=false;
+                        settings.setVibrate(0);
                     }
                 }else if(drawerItem.getIdentifier()==Constants.ID_DL_ITEM_FLASH){
                     if(sdi.isChecked()){
-                        flashStatus=true;
+                        settings.setFlash(1);
                     }else{
-                        flashStatus=false;
+                        settings.setFlash(0);
                     }
                 }else if(drawerItem.getIdentifier()==Constants.ID_DL_ITEM_RINGTONE){
                     if(sdi.isChecked()){
-                        soundStatus=true;
+                        settings.setRingtone(1);
                     }else{
-                        soundStatus=false;
+                        settings.setRingtone(0);
                     }
                 }
             }
+
+            settingsDAO.updateSettings(settings);
         }
     };
 
@@ -341,14 +381,11 @@ public class MainActivity extends AppCompatActivity {
                             response.append(lastLocation.getLatitude());
                             response.append(";");
                             response.append(lastLocation.getLongitude());
+
+
                             sendSMS(phone,response.toString());
 
-                            Intent intent = new Intent(MainActivity.this,OverLockScreenActivity.class);
-                            intent.putExtra(Constants.SEARCHED_PHONE_TEXT_ALERT,labelSearchedPhoneAlert);
-                            intent.putExtra(Constants.SEARCHED_PHONE_FLASH_STATUS,flashStatus);
-                            intent.putExtra(Constants.SEARCHED_PHONE_SOUND_STATUS,soundStatus);
-                            intent.putExtra(Constants.SEARCHED_PHONE_VIBRATE_STATUS,vibrateStatus);
-                            startActivity(intent);
+                            startActivity(new Intent(MainActivity.this,OverLockScreenActivity.class));
 
                         }
 
@@ -384,17 +421,18 @@ public class MainActivity extends AppCompatActivity {
      * Init the listview with the adapter and the item click listener
      */
     private void initListView(){
-        listPreviousSearch=new ArrayList<>();
         lvPreviousSearch=(ListView)findViewById(R.id.lv_previous_search);
-        previousSearchContactAdapter = new PreviousSearchContactAdapter(listPreviousSearch,MainActivity.this);
-        lvPreviousSearch.setAdapter(previousSearchContactAdapter);
+        contactHistoricAdapter = new ContactHistoricAdapter(MainActivity.this,contactHistoricDAO.getCursorContactHistoric());
+        lvPreviousSearch.setAdapter(contactHistoricAdapter);
 
         lvPreviousSearch.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Contact contact=(Contact)parent.getItemAtPosition(position);
+                Cursor cursor=(Cursor) parent.getItemAtPosition(position);
 
-                actvContact.setText(contact.getName());
+                if(cursor.moveToPosition(position)){
+                    actvContact.setText(cursor.getString(1));
+                }
 
                 /*if(isUserInputAContact(data))
                     actvContact.setText(contactSelected);
@@ -430,14 +468,15 @@ public class MainActivity extends AppCompatActivity {
                 if(isValidInput(userInput)){
 
                     if(userInput.startsWith("0")){
-                        contactSelected = new Contact(Constants.LABEL_UNKNOW_CONTACT,userInput, Calendar.getInstance().getTime());
+                        contactSelected = new ContactHistoric(Constants.LABEL_UNKNOW_CONTACT,userInput, Calendar.getInstance().getTime());
                     }else{
-                        contactSelected = new Contact(userInput,mapContacts.get(userInput), Calendar.getInstance().getTime());
+                        contactSelected = new ContactHistoric(userInput,mapContacts.get(userInput), Calendar.getInstance().getTime());
                     }
 
-                    listPreviousSearch.add(contactSelected);
+                    contactHistoricDAO.addContactHistoric(contactSelected);
 
-                    previousSearchContactAdapter.notifyDataSetChanged();
+                    contactHistoricAdapter.swapCursor(contactHistoricDAO.getCursorContactHistoric());
+                    contactHistoricAdapter.notifyDataSetChanged();
 
 
                     //Hide the keyboard
@@ -493,7 +532,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    @Override
+    /*@Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
 
         switch (requestCode) {
@@ -507,7 +546,7 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
         }
-    }
+    }*/
 
    /* @Override
     protected void onSaveInstanceState(Bundle outState) {

@@ -1,4 +1,4 @@
-package com.yanclement.geophone.intro;
+package com.yanclement.geophone.activity.intro;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;

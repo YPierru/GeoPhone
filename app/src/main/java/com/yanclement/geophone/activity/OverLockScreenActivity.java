@@ -18,6 +18,8 @@ import android.widget.TextView;
 
 import com.yanclement.geophone.Constants;
 import com.yanclement.geophone.R;
+import com.yanclement.geophone.dao.SettingsDAO;
+import com.yanclement.geophone.model.Settings;
 
 import java.io.IOException;
 
@@ -31,9 +33,6 @@ public class OverLockScreenActivity extends AppCompatActivity {
     private Button btnStop;
     private FrameLayout frameLayout;
 
-    private boolean flashStatus;
-    private boolean vibrateStatus;
-    private boolean soundStatus;
 
     private Camera camera;
     private Camera.Parameters parameters;
@@ -46,12 +45,15 @@ public class OverLockScreenActivity extends AppCompatActivity {
     private Vibrator vibrator;
     private long[] vibrationPattern = {0,500, 500};
 
+    private SettingsDAO settingsDAO;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_over_lock_screen);
 
+        settingsDAO = new SettingsDAO(OverLockScreenActivity.this);
 
         //Waking up the screen
         PowerManager pm = (PowerManager) getApplicationContext().getSystemService(Context.POWER_SERVICE);
@@ -79,9 +81,7 @@ public class OverLockScreenActivity extends AppCompatActivity {
 
         frameLayout = (FrameLayout) findViewById(R.id.fl_main);
 
-        flashStatus = getIntent().getExtras().getBoolean(Constants.SEARCHED_PHONE_FLASH_STATUS);
-        vibrateStatus = getIntent().getExtras().getBoolean(Constants.SEARCHED_PHONE_VIBRATE_STATUS);
-        soundStatus = getIntent().getExtras().getBoolean(Constants.SEARCHED_PHONE_SOUND_STATUS);
+
 
         btnStop = (Button)findViewById(R.id.btn_stop);
 
@@ -95,16 +95,17 @@ public class OverLockScreenActivity extends AppCompatActivity {
             }
         });
 
+        Settings settings = settingsDAO.getSettings();
 
-        if(vibrateStatus) {
+        if(settings.getVibrate()==1) {
             vibrator.vibrate(vibrationPattern, 0);
         }
 
-        if(flashStatus){
+        if(settings.getFlash()==1){
             startFlash();
         }
 
-        if(soundStatus){
+        if(settings.getRingtone()==1){
             mediaPlayer.start();
         }
     }
