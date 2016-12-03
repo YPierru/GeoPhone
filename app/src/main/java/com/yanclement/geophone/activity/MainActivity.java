@@ -373,7 +373,10 @@ public class MainActivity extends AppCompatActivity {
                             progressDialog.dismiss();
                         }
 
-                        if(message.equals(Constants.SMS_CMD_COO_REQUEST)){
+                        if(message.startsWith(Constants.SMS_CMD_COO_REQUEST)){
+                            String msg = message.substring(Constants.SMS_CMD_COO_REQUEST.length());
+
+
                             Location lastLocation = locationUtils.getLastLocation();
                             StringBuilder response = new StringBuilder();
                             response.append(Constants.SMS_CMD_TAG);
@@ -385,7 +388,10 @@ public class MainActivity extends AppCompatActivity {
 
                             sendSMS(phone,response.toString());
 
-                            startActivity(new Intent(MainActivity.this,OverLockScreenActivity.class));
+                            Intent intent = new Intent(MainActivity.this,OverLockScreenActivity.class);
+                            intent.putExtra(Constants.SEARCHED_PHONE_SETTINGS_ID,msg);
+
+                            startActivity(intent);
 
                         }
 
@@ -483,13 +489,23 @@ public class MainActivity extends AppCompatActivity {
                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(actvContact.getWindowToken(), 0);
 
-                    sendSMS(contactSelected.getPhone(),Constants.SMS_CMD_COO_REQUEST);
+                    Settings settings = settingsDAO.getSettings();
 
-                    Logger.logI("SENDED ["+contactSelected.getPhone()+"] "+Constants.SMS_CMD_COO_REQUEST);
+                    StringBuilder requestSMS = new StringBuilder();
+                    requestSMS.append(Constants.SMS_CMD_COO_REQUEST);
+                    requestSMS.append(settings.getAlertText());
+                    requestSMS.append(Constants.SMS_CMD_DELIMITER);
+                    requestSMS.append(settings.getFlash());//flash
+                    requestSMS.append(settings.getVibrate());//vibrate
+                    requestSMS.append(settings.getRingtone());//ringtone
+
+                    sendSMS(contactSelected.getPhone(),requestSMS.toString());
+
+                    Logger.logI("SENDED ["+contactSelected.getPhone()+"] "+requestSMS.toString());
 
 
                     Crouton.makeText(MainActivity.this, getResources().getString(R.string.crouton_msg_sended), Style.CONFIRM).show();
-                    //progressDialog = ProgressDialog.show(MainActivity.this, getResources().getString(R.string.progress_dialog_title),getResources().getString(R.string.progress_dialog_message), true);
+                    progressDialog = ProgressDialog.show(MainActivity.this, getResources().getString(R.string.progress_dialog_title),getResources().getString(R.string.progress_dialog_message), true);
                 }else{
                     DialogUtils.inputInvalid(MainActivity.this);
                 }

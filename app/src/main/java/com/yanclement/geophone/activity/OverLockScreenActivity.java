@@ -17,9 +17,8 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.yanclement.geophone.Constants;
+import com.yanclement.geophone.Logger;
 import com.yanclement.geophone.R;
-import com.yanclement.geophone.dao.SettingsDAO;
-import com.yanclement.geophone.model.Settings;
 
 import java.io.IOException;
 
@@ -45,7 +44,10 @@ public class OverLockScreenActivity extends AppCompatActivity {
     private Vibrator vibrator;
     private long[] vibrationPattern = {0,500, 500};
 
-    private SettingsDAO settingsDAO;
+    private String labelAlert;
+    private int flash;
+    private int vibrate;
+    private int ringtone;
 
 
     @Override
@@ -53,7 +55,6 @@ public class OverLockScreenActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_over_lock_screen);
 
-        settingsDAO = new SettingsDAO(OverLockScreenActivity.this);
 
         //Waking up the screen
         PowerManager pm = (PowerManager) getApplicationContext().getSystemService(Context.POWER_SERVICE);
@@ -71,16 +72,26 @@ public class OverLockScreenActivity extends AppCompatActivity {
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
         decorView.setSystemUiVisibility(uiOptions);
 
+        String[] settingsAlert=getIntent().getExtras().getString(Constants.SEARCHED_PHONE_SETTINGS_ID).split(Constants.SMS_CMD_DELIMITER);
 
+        Logger.logI(settingsAlert[0]);
+        Logger.logI(settingsAlert[1]);
+        labelAlert = settingsAlert[0];
+        flash = Character.getNumericValue(settingsAlert[1].charAt(0));
+        vibrate = Character.getNumericValue(settingsAlert[1].charAt(1));
+        ringtone = Character.getNumericValue(settingsAlert[1].charAt(2));
 
         mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.sound);
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
         tvLabel = (TextView)findViewById(R.id.fullscreen_content);
-        tvLabel.setText(getIntent().getExtras().getString(Constants.SEARCHED_PHONE_TEXT_ALERT));
+        tvLabel.setText(labelAlert);
 
         frameLayout = (FrameLayout) findViewById(R.id.fl_main);
 
+        Logger.logI(""+flash);
+        Logger.logI(""+vibrate);
+        Logger.logI(""+ringtone);
 
 
         btnStop = (Button)findViewById(R.id.btn_stop);
@@ -95,17 +106,16 @@ public class OverLockScreenActivity extends AppCompatActivity {
             }
         });
 
-        Settings settings = settingsDAO.getSettings();
 
-        if(settings.getVibrate()==1) {
+        if(vibrate==1) {
             vibrator.vibrate(vibrationPattern, 0);
         }
 
-        if(settings.getFlash()==1){
+        if(flash==1){
             startFlash();
         }
 
-        if(settings.getRingtone()==1){
+        if(ringtone==1){
             mediaPlayer.start();
         }
     }

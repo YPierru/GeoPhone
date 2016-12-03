@@ -10,16 +10,14 @@ public class Constants {
 
     public static final String SMS_CMD_TAG="[GeoPhone]";
     public static final String SMS_CMD_COO_REQUEST=SMS_CMD_TAG+"GPS_MAGN_COO_RQ";
+    public static final String SMS_CMD_DELIMITER="X__X";
     public static final String SMS_CMD_COO_GPS_RESPONSE="GPS_COO";
     public static final String SMS_CMD_COO_MAGN_RESPONSE="MAGN_COO";
 
 
     public static final String SEARCHED_PHONE_LOCATION="SEARCHED_PHONE_LOCATION";
     public static final String SEARCHED_PHONE_ID="SEARCHED_PHONE_ID";
-    public static final String SEARCHED_PHONE_TEXT_ALERT="TEXT_ALERT";
-    public static final String SEARCHED_PHONE_FLASH_STATUS="FLASH_STATUS";
-    public static final String SEARCHED_PHONE_SOUND_STATUS="SOUND_STATUS";
-    public static final String SEARCHED_PHONE_VIBRATE_STATUS="VIBRATE_STATUS";
+    public static final String SEARCHED_PHONE_SETTINGS_ID="SETTINGS";
 
     /**
      * Permission request identifier
