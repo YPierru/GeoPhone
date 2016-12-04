@@ -11,6 +11,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 
 import com.yanclement.geophone.R;
+import com.yanclement.geophone.dao.SettingsDAO;
 
 /**
  * Created by YPierru on 22/11/2016.
@@ -18,7 +19,6 @@ import com.yanclement.geophone.R;
 
 public class DialogUtils {
 
-    private static String newLabel;
 
     /**
      * Show the AlertDialog displayed if user deny permissions
@@ -74,7 +74,7 @@ public class DialogUtils {
                 .show();
     }
 
-    public static String alertTextLabel(final Activity activity,String currentLabel){
+    public static void alertTextLabel(final Activity activity,String currentLabel){
         final EditText edittext = new EditText(activity);
         edittext.setText(currentLabel);
         edittext.setSingleLine();
@@ -86,26 +86,32 @@ public class DialogUtils {
         edittext.setLayoutParams(params);
         container.addView(edittext);
 
+        final SettingsDAO settingsDAO = new SettingsDAO(activity);
+        final com.yanclement.geophone.model.Settings settings = settingsDAO.getSettings();
+
         new AlertDialog.Builder(activity)
                 .setTitle(activity.getResources().getString(R.string.dialog_alert_text_title))
                 .setMessage(activity.getResources().getString(R.string.dialog_alert_text_message))
                 .setView(container)
                 .setPositiveButton(activity.getResources().getString(R.string.dialog_alert_text_pos_btn), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        newLabel=edittext.getText().toString();
+                        String newLabel=edittext.getText().toString();
+                        settings.setAlertText(newLabel);
+                        settingsDAO.updateSettings(settings);
                         dialog.dismiss();
                     }
                 })
                 .setNegativeButton(activity.getResources().getString(R.string.dialog_alert_text_neg_btn), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        newLabel=null;
+                        dialog.dismiss();
                     }
                 })
                 .setCancelable(true)
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
 
-        return newLabel;
+
+
     }
 
 }

@@ -1,11 +1,14 @@
 package com.yanclement.geophone.activity.intro;
 
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 
 import com.github.paolorotolo.appintro.AppIntro;
+import com.yanclement.geophone.Constants;
 import com.yanclement.geophone.R;
+import com.yanclement.geophone.utils.DialogUtils;
 
 /**
  * Created by YPierru on 20/11/2016.
@@ -26,6 +29,13 @@ public class IntroActivity extends AppIntro {
         addSlide(SampleSlide.newInstance(R.layout.intro));
         addSlide(SampleSlide.newInstance(R.layout.intro));
         addSlide(SampleSlide.newInstance(R.layout.intro));
+
+        askForPermissions(new String[]{android.Manifest.permission.READ_SMS,
+                android.Manifest.permission.RECEIVE_SMS,
+                android.Manifest.permission.READ_CONTACTS,
+                android.Manifest.permission.ACCESS_FINE_LOCATION,
+                android.Manifest.permission.ACCESS_COARSE_LOCATION,
+                android.Manifest.permission.CAMERA},2);
 
         // Edit the color of the nav bar on Lollipop+ devices
         // setNavBarColor(Color.parseColor("#3F51B5"));
@@ -75,5 +85,21 @@ public class IntroActivity extends AppIntro {
         intent.putExtra(Constants.ID_BEHAVIOR_MAINACTIVITY,Constants.KEY_BEHAVIOR_MAINACTIVITY_FROM_APPINTRO);
         startActivity(intent);*/
         finish();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+
+        switch (requestCode) {
+            case Constants.ID_PERMISSION_REQUEST: {
+
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                } else {
+                    DialogUtils.permissionsKO(this);
+                }
+                return;
+            }
+        }
     }
 }

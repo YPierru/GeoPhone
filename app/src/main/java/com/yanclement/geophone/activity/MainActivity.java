@@ -124,11 +124,12 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Start the thread
-        t.start();*/
+        t.start();
 
-        //if(!isFirstStart) {
+        if(!isFirstStart) {
             //permissionManagement();
-        //}
+            initApplication();
+        }*/
 
         initApplication();
 
@@ -196,8 +197,6 @@ public class MainActivity extends AppCompatActivity {
         //toolbar.setTitle(getString(R.string.app_name));
         setSupportActionBar(toolbar);
 
-        //Current settings
-        Settings settings = settingsDAO.getSettings();
 
         // Create the AccountHeader
         headerResult = new AccountHeaderBuilder()
@@ -212,7 +211,26 @@ public class MainActivity extends AppCompatActivity {
         result = new DrawerBuilder()
                 .withActivity(this)
                 .withHasStableIds(true)
-                .withAccountHeader(headerResult) //set the AccountHeader we created earlier for the header
+                .withAccountHeader(headerResult) //set the AccountHeader we created earlier for the header.
+                .withOnDrawerListener(new Drawer.OnDrawerListener() {
+                    @Override
+                    public void onDrawerOpened(View drawerView) {
+                        PrimaryDrawerItem pdi = (PrimaryDrawerItem) result.getDrawerItem(Constants.ID_DL_ITEM_ALERT_TEXT);
+                        Settings settings = settingsDAO.getSettings();
+                        pdi.withName(getString(R.string.dl_item_alert_text)+"\"" + settings.getAlertText() +"\"");
+                        result.updateItem(pdi);
+                    }
+
+                    @Override
+                    public void onDrawerClosed(View drawerView) {
+
+                    }
+
+                    @Override
+                    public void onDrawerSlide(View drawerView, float slideOffset) {
+
+                    }
+                })
                 .addDrawerItems(
                         new PrimaryDrawerItem()
                                 .withName(getString(R.string.dl_item_main_activity))
@@ -226,9 +244,9 @@ public class MainActivity extends AppCompatActivity {
                         new SectionDrawerItem()
                                 .withName(getString(R.string.dl_item_settings_label)),
                         new PrimaryDrawerItem()
-                                .withName(getString(R.string.dl_item_alert_text)+"\"" + settings.getAlertText() +"\"")
                                 .withIcon(GoogleMaterial.Icon.gmd_text_format)
                                 .withIdentifier(Constants.ID_DL_ITEM_ALERT_TEXT)
+                                .withName(getString(R.string.dl_item_alert_text))
                                 .withSelectable(false),
                         new SwitchDrawerItem()
                                 .withName(getString(R.string.dl_item_vibrator))
@@ -262,20 +280,15 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
                         if (drawerItem instanceof Nameable && drawerItem != null) {
+
                             Nameable nameable = (Nameable)drawerItem;
 
                             Settings settings = settingsDAO.getSettings();
 
                             if(drawerItem.getIdentifier()==Constants.ID_DL_ITEM_ALERT_TEXT){
-                                String str = DialogUtils.alertTextLabel(MainActivity.this,settings.getAlertText());
-                                if(str!=null){
-                                    settings.setAlertText(str);
-                                    settingsDAO.updateSettings(settings);
-                                }
-                                PrimaryDrawerItem pdi = (PrimaryDrawerItem) drawerItem;
-                                pdi.withName(getString(R.string.dl_item_alert_text)+"\"" + settings.getAlertText() +"\"");
-                                result.updateItem(pdi);
-                            }else if(drawerItem.getIdentifier()==Constants.ID_DL_ITEM_CONTACT_ACTIVITY){
+                                DialogUtils.alertTextLabel(MainActivity.this,settings.getAlertText());
+                            }
+                            else if(drawerItem.getIdentifier()==Constants.ID_DL_ITEM_CONTACT_ACTIVITY){
                                 startActivity(new Intent(MainActivity.this,WhiteListActivity.class));
                             }else if(nameable.getName().toString().equals(getString(R.string.dl_item_source_code))){
                                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.github.com/ypierru/geophone"));
@@ -294,27 +307,14 @@ public class MainActivity extends AppCompatActivity {
                 .withSavedInstance(savedInstanceState)
                 .build();
 
-        SwitchDrawerItem sdiFlash = (SwitchDrawerItem)result.getDrawerItem(Constants.ID_DL_ITEM_FLASH);
-        if(settings.getFlash()==1)
-            sdiFlash.withChecked(true);
-        else
-        sdiFlash.withChecked(false);
 
-        SwitchDrawerItem sdiVibrate= (SwitchDrawerItem)result.getDrawerItem(Constants.ID_DL_ITEM_VIBRATOR);
-        if(settings.getVibrate()==1)
-            sdiVibrate.withChecked(true);
-        else
-            sdiVibrate.withChecked(false);
+        //Current settings
+        Settings settings = settingsDAO.getSettings();
 
-        SwitchDrawerItem sdiRingtone= (SwitchDrawerItem)result.getDrawerItem(Constants.ID_DL_ITEM_RINGTONE);
-        if(settings.getRingtone()==1)
-            sdiRingtone.withChecked(true);
-        else
-            sdiRingtone.withChecked(false);
+        initSwitch((SwitchDrawerItem)result.getDrawerItem(Constants.ID_DL_ITEM_FLASH),settings.getFlash());
+        initSwitch((SwitchDrawerItem)result.getDrawerItem(Constants.ID_DL_ITEM_VIBRATOR),settings.getVibrate());
+        initSwitch((SwitchDrawerItem)result.getDrawerItem(Constants.ID_DL_ITEM_RINGTONE),settings.getRingtone());
 
-        result.updateItem(sdiFlash);
-        result.updateItem(sdiVibrate);
-        result.updateItem(sdiRingtone);
 
         //result.openDrawer();
 
@@ -324,6 +324,15 @@ public class MainActivity extends AppCompatActivity {
         toggle.syncState();
 
 
+    }
+
+    private void initSwitch(SwitchDrawerItem switchItem,int status){
+        if(status==1)
+            switchItem.withChecked(true);
+        else
+            switchItem.withChecked(false);
+
+        result.updateItem(switchItem);
     }
 
     private OnCheckedChangeListener onCheckedChangeListener = new OnCheckedChangeListener() {
@@ -439,11 +448,6 @@ public class MainActivity extends AppCompatActivity {
                 if(cursor.moveToPosition(position)){
                     actvContact.setText(cursor.getString(1));
                 }
-
-                /*if(isUserInputAContact(data))
-                    actvContact.setText(contactSelected);
-                else
-                    actvContact.setText(phoneSelected);*/
 
                 actvContact.dismissDropDown();
             }
