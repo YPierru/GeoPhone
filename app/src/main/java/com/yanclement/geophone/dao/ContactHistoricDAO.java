@@ -22,12 +22,12 @@ public class ContactHistoricDAO extends DatabaseDAO{
         values.put(MySQLiteHelper.PHONE_COLUMN, contactHistoric.getPhone());
         values.put(MySQLiteHelper.DATE_COLUMN, contactHistoric.getStringDate());
 
-        return database.insert(MySQLiteHelper.CONTACT_HISTORIC_TABLE, null, values);
+        return database.insert(MySQLiteHelper.CONTACT_HISTORIC_TABLE_NAME, null, values);
     }
 
     public Cursor getCursorContactHistoric() {
 
-        Cursor cursor = database.query(MySQLiteHelper.CONTACT_HISTORIC_TABLE,
+        Cursor cursor = database.query(MySQLiteHelper.CONTACT_HISTORIC_TABLE_NAME,
                 new String[] { MySQLiteHelper.ID_COLUMN,
                         MySQLiteHelper.NAME_COLUMN,
                         MySQLiteHelper.PHONE_COLUMN,

@@ -21,7 +21,7 @@ public class SettingsDAO extends DatabaseDAO {
 
     public long saveSetting(Settings settings) {
 
-        Cursor cursor =  database.rawQuery("SELECT count(*) from "+MySQLiteHelper.SETTINGS_TABLE+";",null);
+        Cursor cursor =  database.rawQuery("SELECT count(*) from "+MySQLiteHelper.SETTINGS_TABLE_NAME +";",null);
         cursor.moveToFirst();
         int count = cursor.getInt(0);
 
@@ -31,8 +31,9 @@ public class SettingsDAO extends DatabaseDAO {
             values.put(MySQLiteHelper.FLASH_COLUMN, settings.getFlash());
             values.put(MySQLiteHelper.VIBRATE_COLUMN, settings.getVibrate());
             values.put(MySQLiteHelper.RINGTONE_COLUMN, settings.getRingtone());
+            values.put(MySQLiteHelper.WAKEUP_ANONYMOUS_COLUMN, settings.getWakeupAnonymous());
 
-            return database.insert(MySQLiteHelper.SETTINGS_TABLE, null, values);
+            return database.insert(MySQLiteHelper.SETTINGS_TABLE_NAME, null, values);
         }
 
         return -1;
@@ -45,9 +46,10 @@ public class SettingsDAO extends DatabaseDAO {
         values.put(MySQLiteHelper.FLASH_COLUMN, settings.getFlash());
         values.put(MySQLiteHelper.VIBRATE_COLUMN, settings.getVibrate());
         values.put(MySQLiteHelper.RINGTONE_COLUMN, settings.getRingtone());
+        values.put(MySQLiteHelper.WAKEUP_ANONYMOUS_COLUMN, settings.getWakeupAnonymous());
 
 
-        long result = database.update(MySQLiteHelper.SETTINGS_TABLE, values,
+        long result = database.update(MySQLiteHelper.SETTINGS_TABLE_NAME, values,
                 WHERE_ID_EQUALS,
                 new String[] { String.valueOf(Settings.ID) });
 
@@ -58,15 +60,16 @@ public class SettingsDAO extends DatabaseDAO {
 
     public Settings getSettings() {
 
-        Cursor cursor = database.query(MySQLiteHelper.SETTINGS_TABLE,
+        Cursor cursor = database.query(MySQLiteHelper.SETTINGS_TABLE_NAME,
                 new String[] { MySQLiteHelper.TEXT_ALERT_COLUMN,
                         MySQLiteHelper.FLASH_COLUMN,
                         MySQLiteHelper.VIBRATE_COLUMN,
-                        MySQLiteHelper.RINGTONE_COLUMN}, null, null, null, null,
+                        MySQLiteHelper.RINGTONE_COLUMN,
+                        MySQLiteHelper.WAKEUP_ANONYMOUS_COLUMN}, null, null, null, null,
                 null);
 
         cursor.moveToFirst();
-        return new Settings(cursor.getString(0),cursor.getInt(1),cursor.getInt(2),cursor.getInt(3));
+        return new Settings(cursor.getString(0),cursor.getInt(1),cursor.getInt(2),cursor.getInt(3),cursor.getInt(4));
 
     }
 

@@ -110,8 +110,52 @@ public class DialogUtils {
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
 
-
-
     }
+
+    /*public static void alertTextAddContactWL(final Activity activity){
+        HashMap<String,String>mapContacts=ContactUtils.getContacts(activity.getContentResolver());
+
+        final AutoCompleteTextView actv = new AutoCompleteTextView(activity);
+        actv.setThreshold(1);
+
+        ArrayAdapter<String> adapterActv = new ArrayAdapter<>(activity, android.R.layout.simple_list_item_1, mapContacts.keySet().toArray(new String[mapContacts.size()]));
+        actv.setAdapter(adapterActv);
+
+
+
+        FrameLayout container = new FrameLayout(activity);
+        FrameLayout.LayoutParams params = new  FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.leftMargin=70;
+        params.rightMargin=70;
+        actv.setLayoutParams(params);
+        container.addView(actv);
+
+        final ContactWhiteListDAO contactWhiteListDAO = new ContactWhiteListDAO(activity);
+
+        new AlertDialog.Builder(activity)
+                .setTitle(activity.getResources().getString(R.string.dialog_alert_text_title))
+                .setMessage(activity.getResources().getString(R.string.dialog_alert_text_message))
+                .setView(container)
+                .setPositiveButton(activity.getResources().getString(R.string.dialog_alert_text_pos_btn), new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        String contactName=actv.getText().toString();
+
+
+
+                        settings.setAlertText(newLabel);
+                        settingsDAO.updateSettings(settings);
+                        dialog.dismiss();
+                    }
+                })
+                .setNegativeButton(activity.getResources().getString(R.string.dialog_alert_text_neg_btn), new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .setCancelable(true)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
+
+    }*/
 
 }

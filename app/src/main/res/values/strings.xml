@@ -59,6 +59,7 @@
     <string name="dl_item_alert_text">Texte de l\'alerte : </string>
     <string name="dl_item_main_activity">Chercher un téléphone</string>
     <string name="dl_item_list_contacts">Liste des contacts</string>
+    <string name="dl_item_wakeup_anonymous">Réveil par anonyme</string>
     <string name="dl_item_settings_label">Paramètres de l\'alerte</string>
     <string name="dl_item_vibrator">Vibreur</string>
     <string name="dl_item_flash">Flash</string>

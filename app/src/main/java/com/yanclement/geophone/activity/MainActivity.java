@@ -178,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
         //contactHistoricDAO.addContactHistoric(new ContactHistoric("test","0100000000",Calendar.getInstance().getTime()));
 
         settingsDAO = new SettingsDAO(MainActivity.this);
-        settingsDAO.saveSetting(new Settings("JE SUIS LA",1,1,1));
+        settingsDAO.saveSetting(new Settings("JE SUIS LA",1,1,1,0));
 
         initNavigationDrawer();
         initBroadcastReceiver();
@@ -240,6 +240,12 @@ public class MainActivity extends AppCompatActivity {
                                 .withName(getString(R.string.dl_item_list_contacts))
                                 .withIcon(GoogleMaterial.Icon.gmd_folder_person)
                                 .withIdentifier(Constants.ID_DL_ITEM_CONTACT_ACTIVITY),
+                        new SwitchDrawerItem()
+                                .withName(getString(R.string.dl_item_wakeup_anonymous))
+                                .withIcon(GoogleMaterial.Icon.gmd_folder_person)
+                                .withOnCheckedChangeListener(onCheckedChangeListener)
+                                .withIdentifier(Constants.ID_DL_ITEM_WAKEUP_ANONYMOUS)
+                                .withSelectable(false),
 
                         new SectionDrawerItem()
                                 .withName(getString(R.string.dl_item_settings_label)),
@@ -314,6 +320,7 @@ public class MainActivity extends AppCompatActivity {
         initSwitch((SwitchDrawerItem)result.getDrawerItem(Constants.ID_DL_ITEM_FLASH),settings.getFlash());
         initSwitch((SwitchDrawerItem)result.getDrawerItem(Constants.ID_DL_ITEM_VIBRATOR),settings.getVibrate());
         initSwitch((SwitchDrawerItem)result.getDrawerItem(Constants.ID_DL_ITEM_RINGTONE),settings.getRingtone());
+        initSwitch((SwitchDrawerItem)result.getDrawerItem(Constants.ID_DL_ITEM_WAKEUP_ANONYMOUS),settings.getWakeupAnonymous());
 
 
         //result.openDrawer();
@@ -359,6 +366,12 @@ public class MainActivity extends AppCompatActivity {
                         settings.setRingtone(1);
                     }else{
                         settings.setRingtone(0);
+                    }
+                }else if(drawerItem.getIdentifier()==Constants.ID_DL_ITEM_WAKEUP_ANONYMOUS){
+                    if(sdi.isChecked()){
+                        settings.setWakeupAnonymous(1);
+                    }else{
+                        settings.setWakeupAnonymous(0);
                     }
                 }
             }

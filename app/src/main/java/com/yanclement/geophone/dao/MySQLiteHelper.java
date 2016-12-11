@@ -12,11 +12,11 @@ import android.util.Log;
 public class MySQLiteHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "geophonedb";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 3;
 
-    public static final String CONTACT_HISTORIC_TABLE = "contact_h";
-    public static final String CONTACT_WHITE_LIST_TABLE = "contact_wl";
-    public static final String SETTINGS_TABLE = "settings";
+    public static final String CONTACT_HISTORIC_TABLE_NAME = "contact_h";
+    public static final String CONTACT_WHITE_LIST_TABLE_NAME = "contact_wl";
+    public static final String SETTINGS_TABLE_NAME = "settings";
 
     /**
      * Commun column
@@ -37,9 +37,10 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
     public static final String FLASH_COLUMN = "flash";
     public static final String VIBRATE_COLUMN = "vibrate";
     public static final String RINGTONE_COLUMN = "ringtone";
+    public static final String WAKEUP_ANONYMOUS_COLUMN = "wakeup_anonymous";
 
     public static final String CREATE_CONTACT_HISTORIC_TABLE = "CREATE TABLE "
-            + CONTACT_HISTORIC_TABLE
+            + CONTACT_HISTORIC_TABLE_NAME
             + "("
             + ID_COLUMN + " INTEGER PRIMARY KEY AUTOINCREMENT, "
             + NAME_COLUMN + " TEXT, "
@@ -48,7 +49,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
             + ")";
 
     public static final String CREATE_CONTACT_WHITE_LIST_TABLE = "CREATE TABLE "
-            + CONTACT_WHITE_LIST_TABLE
+            + CONTACT_WHITE_LIST_TABLE_NAME
             + "("
             + ID_COLUMN + " INTEGER PRIMARY KEY AUTOINCREMENT,"
             + NAME_COLUMN + " TEXT, "
@@ -57,13 +58,14 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 
 
     public static final String CREATE_SETTINGS_TABLE = "CREATE TABLE "
-            + SETTINGS_TABLE
+            + SETTINGS_TABLE_NAME
             + "("
             + ID_COLUMN + " INTEGER PRIMARY KEY,"
             + TEXT_ALERT_COLUMN + " TEXT, "
             + FLASH_COLUMN + " INTEGER, "
             + VIBRATE_COLUMN+ " INTEGER, "
-            + RINGTONE_COLUMN + " INTEGER "
+            + RINGTONE_COLUMN + " INTEGER, "
+            + WAKEUP_ANONYMOUS_COLUMN + " INTEGER "
             + ")";
 
 
@@ -92,9 +94,9 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
         Log.w(MySQLiteHelper.class.getName(),
                 "Upgrading database from version " + oldVersion + " to "
                         + newVersion + ", which will destroy all old data");
-        db.execSQL("DROP TABLE IF EXISTS " + CREATE_CONTACT_HISTORIC_TABLE);
-        db.execSQL("DROP TABLE IF EXISTS " + CREATE_CONTACT_WHITE_LIST_TABLE);
-        db.execSQL("DROP TABLE IF EXISTS " + CREATE_SETTINGS_TABLE);
+        db.execSQL("DROP TABLE IF EXISTS " + CONTACT_HISTORIC_TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + CONTACT_WHITE_LIST_TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + SETTINGS_TABLE_NAME);
         onCreate(db);
     }
 

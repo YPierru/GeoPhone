@@ -28,10 +28,11 @@ public class Constants {
 
     public static final int ID_DL_ITEM_MAIN_ACTIVITY=1;
     public static final int ID_DL_ITEM_CONTACT_ACTIVITY=2;
-    public static final int ID_DL_ITEM_ALERT_TEXT=3;
-    public static final int ID_DL_ITEM_VIBRATOR=4;
-    public static final int ID_DL_ITEM_FLASH=5;
-    public static final int ID_DL_ITEM_RINGTONE=6;
+    public static final int ID_DL_ITEM_WAKEUP_ANONYMOUS=3;
+    public static final int ID_DL_ITEM_ALERT_TEXT=4;
+    public static final int ID_DL_ITEM_VIBRATOR=5;
+    public static final int ID_DL_ITEM_FLASH=6;
+    public static final int ID_DL_ITEM_RINGTONE=7;
 
 
     public static final String LABEL_UNKNOW_CONTACT="Inconnu";

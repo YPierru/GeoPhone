@@ -12,6 +12,7 @@ public class Settings {
      * 0=false
      * (sqlite does not support boolean)
      */
+    private int wakeupAnonymous;
     private int flash;
     private int vibrate;
     private int ringtone;
@@ -19,11 +20,12 @@ public class Settings {
     public static final int ID=1;
 
 
-    public Settings(String alertText, int flash, int vibrate, int ringtone) {
+    public Settings(String alertText, int flash, int vibrate, int ringtone,int wakeupAnonymous) {
         this.alertText = alertText;
         this.flash = flash;
         this.vibrate = vibrate;
         this.ringtone = ringtone;
+        this.wakeupAnonymous = wakeupAnonymous;
     }
 
     public String getAlertText() {
@@ -56,5 +58,13 @@ public class Settings {
 
     public void setRingtone(int ringtone) {
         this.ringtone = ringtone;
+    }
+
+    public int getWakeupAnonymous() {
+        return wakeupAnonymous;
+    }
+
+    public void setWakeupAnonymous(int wakeupAnonymous) {
+        this.wakeupAnonymous = wakeupAnonymous;
     }
 }
