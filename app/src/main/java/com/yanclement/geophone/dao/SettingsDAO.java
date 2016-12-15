@@ -17,8 +17,14 @@ public class SettingsDAO extends DatabaseDAO {
 
     public SettingsDAO(Context context) {
         super(context);
+        saveSetting(new Settings("JE SUIS LA",1,1,1,0));
     }
 
+    /**
+     * Save settings if table is empty
+     * @param settings
+     * @return
+     */
     public long saveSetting(Settings settings) {
 
         Cursor cursor =  database.rawQuery("SELECT count(*) from "+MySQLiteHelper.SETTINGS_TABLE_NAME +";",null);
@@ -39,6 +45,7 @@ public class SettingsDAO extends DatabaseDAO {
         return -1;
 
     }
+
 
     public long updateSettings(Settings settings) {
         ContentValues values = new ContentValues();

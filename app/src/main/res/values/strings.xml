@@ -10,20 +10,29 @@
     <string name="title_activity_maps">Map</string>
     <string name="title_activity_over_lock_screen">OverLockScreenActivity</string>
     <string name="title_activity_white_list">Contacts autorisés</string>
+    <string name="statusbar_activity_intro">Demande de permission</string>
 
     <!--
         Strings for general gui use
     -->
     <string name="actv_hint">
-        <font size="14">Taper un contact/numéro</font>
+        <font size="14">Tapez un contact/numéro</font>
     </string>
     <string name="crouton_msg_sended">Message envoyé !</string>
     <string name="crouton_permission_denied">Permission refusée</string>
+    <string name="crouton_invalid_phone">Téléphone incorrect</string>
+    <string name="crouton_contact_null">Le nom du contact ne peut être vide</string>
+    <string name="crouton_existing_contact">Nom ou téléphone déjà existant</string>
+    <string name="crouton_contact_deleted">Contact supprimé</string>
+    <string name="crouton_contact_added">Contact ajouté</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_label">Réglages</string>
     <string name="btn_stop_search">Trouvé !</string>
     <string name="send_email">Envoyer un mail</string>
+    <string name="android_menu_item_add_all_contact">Ajouter tout les contacts</string>
+    <string name="android_menu_item_delete_all_contact">Supprimer tout les contacts</string>
+    <string name="android_menu_item_clear_historic">Vider l'historique</string>
 
     <!--
         String for dialog use
@@ -41,6 +50,39 @@
     <string name="dialog_alert_text_message">Le message affiché sur le téléphone cherché est le suivant : </string>
     <string name="dialog_alert_text_pos_btn">Modifier</string>
     <string name="dialog_alert_text_neg_btn">Annuler</string>
+    <string name="dialog_new_contact_actv_hint">Nom...</string>
+    <string name="dialog_new_contact_et_hint">Téléphone...</string>
+    <string name="dialog_new_contact_title">Ajouter un contact</string>
+    <string name="dialog_new_contact_message">Saisissez les informations du contact à ajouter</string>
+    <string name="dialog_new_contact_pos_btn">Ajouter</string>
+    <string name="dialog_new_contact_neg_btn">Annuler</string>
+    <string name="dialog_all_contacts_title">Ajouter tous les contacts</string>
+    <string name="dialog_all_contacts_message">Vous êtes sur le point d\'ajouter tous les contacts de votre répertoire, êtes-vous sûr ?</string>
+    <string name="dialog_all_contacts_pos_btn">Oui</string>
+    <string name="dialog_all_contacts_neg_btn">Non</string>
+    <string name="dialog_delete_contact_title">Supprimer le contact</string>
+    <string name="dialog_delete_contact_message">Etes-vous sûr de vouloir supprimer ce contact ?</string>
+    <string name="dialog_delete_contact_pos_btn">Oui</string>
+    <string name="dialog_delete_contact_neg_btn">Non</string>
+    <string name="dialog_delete_all_contact_title">Supprimer tout les contacts</string>
+    <string name="dialog_delete_all_contact_message">Etes-vous sûr de vouloir supprimer tout les contacts ?</string>
+    <string name="dialog_delete_all_contact_pos_btn">Oui</string>
+    <string name="dialog_delete_all_contact_neg_btn">Non</string>
+    <string name="dialog_ask_permissions_title">Demande de permissions</string>
+    <string name="dialog_ask_permissions_message">GeoPhone a besoin de lire vos contacts, de recevoir vos SMS, d\'accéder à votre localisation ainsi qu\'à votre appareil photo. Ces permissions sont nécessaires pour le bon fonctionnement de l\'application. Il n\'est pas possible d\'utiliser GeoPhone sans ces permissions. Les fenêtres qui vont suivrent vous demandent ces permissions.</string>
+    <string name="dialog_ask_permissions_pos_btn">D\'accord</string>
+    <string name="dialog_ask_permissions_neg_btn">Quitter</string>
+    <string name="dialog_clear_historic_title">Supprimer l'historique</string>
+    <string name="dialog_clear_historic_message">Etes-vous sûr de vouloir supprimer l'historique ?</string>
+    <string name="dialog_clear_historic_pos_btn">Oui</string>
+    <string name="dialog_clear_historic_neg_btn">Non</string>
+    <string name="dialog_clear_item_historic_title">Supprimer ce contact de l'historique</string>
+    <string name="dialog_clear_item_historic_message">Etes-vous sûr de vouloir supprimer ce contact de l'historique ?</string>
+    <string name="dialog_clear_item_historic_pos_btn">Oui</string>
+    <string name="dialog_clear_item_historic_neg_btn">Non</string>
+    <string name="dialog_location_null_title">Localisation nulle</string>
+    <string name="dialog_location_null_message">Le téléphone cherché ne parvient pas à transmettre sa localisation</string>
+    <string name="dialog_location_null_neutral_btn">Ok</string>
 
     <!--
         Item menu label
@@ -67,8 +109,8 @@
     <string name="dl_item_about_label">A propos</string>
     <string name="dl_item_source_code">Sources</string>
     <string name="dl_item_contact">Contact</string>
-    <string name="title_activity_main2">Main2Activity</string>
-    <string name="title_activity_intro_to_use">IntroToUseActivity</string>
+    <string name="title_activity_intro_to_use">GeoPhone</string>
+    <string name="title_activity_new_white_contact">NewWhiteContactActivity</string>
 
 
 </resources>

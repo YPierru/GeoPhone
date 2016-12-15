@@ -9,7 +9,9 @@ import com.yanclement.geophone.model.ContactHistoric;
 /**
  * Created by YPierru on 02/12/2016.
  */
-
+/**
+ * Operations on the database for historic contacts
+ */
 public class ContactHistoricDAO extends DatabaseDAO{
 
     public ContactHistoricDAO(Context context) {
@@ -36,6 +38,16 @@ public class ContactHistoricDAO extends DatabaseDAO{
 
 
         return cursor;
+    }
+
+    public void deleteContactHistoric(String name, String phone){
+        String whereClause = MySQLiteHelper.NAME_COLUMN+"=? AND "+MySQLiteHelper.PHONE_COLUMN+"=?";
+        String[] whereArgs = new String[] { name,phone };
+        database.delete(MySQLiteHelper.CONTACT_HISTORIC_TABLE_NAME, whereClause, whereArgs);
+    }
+
+    public void deleteAllContactsHistoric(){
+        database.delete(MySQLiteHelper.CONTACT_HISTORIC_TABLE_NAME, null, null);
     }
 
 }

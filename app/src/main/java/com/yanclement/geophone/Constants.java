@@ -9,10 +9,9 @@ public class Constants {
     public static final String TAG_INFORMATION = "GEOPHONE_DEBUG";
 
     public static final String SMS_CMD_TAG="[GeoPhone]";
-    public static final String SMS_CMD_COO_REQUEST=SMS_CMD_TAG+"GPS_MAGN_COO_RQ";
+    public static final String SMS_CMD_COO_REQUEST=SMS_CMD_TAG+"GPS_COO_RQ";
     public static final String SMS_CMD_DELIMITER="X__X";
     public static final String SMS_CMD_COO_GPS_RESPONSE="GPS_COO";
-    public static final String SMS_CMD_COO_MAGN_RESPONSE="MAGN_COO";
 
 
     public static final String SEARCHED_PHONE_LOCATION="SEARCHED_PHONE_LOCATION";

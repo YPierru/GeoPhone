@@ -17,7 +17,6 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.yanclement.geophone.Constants;
-import com.yanclement.geophone.Logger;
 import com.yanclement.geophone.R;
 
 import java.io.IOException;
@@ -28,15 +27,13 @@ import java.io.IOException;
  */
 public class OverLockScreenActivity extends AppCompatActivity {
 
-    private TextView tvLabel;
-    private Button btnStop;
     private FrameLayout frameLayout;
 
 
     private Camera camera;
     private Camera.Parameters parameters;
     private int delay = 100; // in ms
-    private boolean flahslightOn;
+    private boolean flashlightOn;
     private int flashRepeat=1000000;
 
     private MediaPlayer mediaPlayer;
@@ -44,10 +41,6 @@ public class OverLockScreenActivity extends AppCompatActivity {
     private Vibrator vibrator;
     private long[] vibrationPattern = {0,500, 500};
 
-    private String labelAlert;
-    private int flash;
-    private int vibrate;
-    private int ringtone;
 
 
     @Override
@@ -74,27 +67,21 @@ public class OverLockScreenActivity extends AppCompatActivity {
 
         String[] settingsAlert=getIntent().getExtras().getString(Constants.SEARCHED_PHONE_SETTINGS_ID).split(Constants.SMS_CMD_DELIMITER);
 
-        Logger.logI(settingsAlert[0]);
-        Logger.logI(settingsAlert[1]);
-        labelAlert = settingsAlert[0];
-        flash = Character.getNumericValue(settingsAlert[1].charAt(0));
-        vibrate = Character.getNumericValue(settingsAlert[1].charAt(1));
-        ringtone = Character.getNumericValue(settingsAlert[1].charAt(2));
+        //Retrieve settings sent from message
+        String labelAlert = settingsAlert[0];
+        int flash = Character.getNumericValue(settingsAlert[1].charAt(0));
+        int vibrate = Character.getNumericValue(settingsAlert[1].charAt(1));
+        int ringtone = Character.getNumericValue(settingsAlert[1].charAt(2));
 
         mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.sound);
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
-        tvLabel = (TextView)findViewById(R.id.fullscreen_content);
+        TextView tvLabel = (TextView)findViewById(R.id.fullscreen_content);
         tvLabel.setText(labelAlert);
 
         frameLayout = (FrameLayout) findViewById(R.id.fl_main);
 
-        Logger.logI(""+flash);
-        Logger.logI(""+vibrate);
-        Logger.logI(""+ringtone);
-
-
-        btnStop = (Button)findViewById(R.id.btn_stop);
+        Button btnStop = (Button)findViewById(R.id.btn_stop);
 
         btnStop.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -173,7 +160,7 @@ public class OverLockScreenActivity extends AppCompatActivity {
             parameters.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
             camera.setParameters(parameters);
 
-            flahslightOn = true;
+            flashlightOn = true;
         }
     }
 
@@ -187,12 +174,12 @@ public class OverLockScreenActivity extends AppCompatActivity {
                 camera.setParameters(parameters);
             }
         }
-        flahslightOn = false;
+        flashlightOn = false;
     }
 
     /** Toggle the flashlight on/off status */
     private void toggleFlashLight() {
-        if (!flahslightOn) { // Off, turn it on
+        if (!flashlightOn) { // Off, turn it on
             turnOn();
         } else { // On, turn it off
             turnOff();

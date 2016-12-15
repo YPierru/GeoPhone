@@ -1,7 +1,9 @@
 package com.yanclement.geophone.activity;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
@@ -13,6 +15,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.telephony.SmsManager;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -24,6 +27,7 @@ import android.widget.CompoundButton;
 import android.widget.ListView;
 
 import com.mikepenz.google_material_typeface_library.GoogleMaterial;
+import com.mikepenz.iconics.IconicsDrawable;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
@@ -39,11 +43,14 @@ import com.yanclement.geophone.Constants;
 import com.yanclement.geophone.Logger;
 import com.yanclement.geophone.R;
 import com.yanclement.geophone.SMSBroadcastReceiver;
+import com.yanclement.geophone.activity.intro.IntroActivity;
 import com.yanclement.geophone.adapter.ContactHistoricAdapter;
 import com.yanclement.geophone.dao.ContactHistoricDAO;
+import com.yanclement.geophone.dao.ContactWhiteListDAO;
 import com.yanclement.geophone.dao.SettingsDAO;
 import com.yanclement.geophone.model.ContactHistoric;
 import com.yanclement.geophone.model.Settings;
+import com.yanclement.geophone.utils.CheckPermissionsUtil;
 import com.yanclement.geophone.utils.ContactUtils;
 import com.yanclement.geophone.utils.DialogUtils;
 import com.yanclement.geophone.utils.LocationUtils;
@@ -58,15 +65,11 @@ import de.keyboardsurfer.android.widget.crouton.Style;
 import static com.yanclement.geophone.R.id.btn_search;
 
 public class MainActivity extends AppCompatActivity {
-    //save our header or result
-    private AccountHeader headerResult = null;
+
     private Drawer result = null;
     private Bundle savedInstanceState;
 
-
     private AutoCompleteTextView actvContact;
-    private Button btnSearch;
-    private ListView lvPreviousSearch;
     private HashMap<String,String> mapContacts;
     private ContactHistoric contactSelected;
 
@@ -74,7 +77,6 @@ public class MainActivity extends AppCompatActivity {
 
     private final boolean SMS_SENDING_FEATURE=false;
     private final boolean SMS_RECEIVING_FEATURE=false;
-    public boolean isFirstStart=true;
     private SMSBroadcastReceiver broadcastReceiver;
     private ProgressDialog progressDialog;
     private LocationUtils locationUtils;
@@ -91,105 +93,35 @@ public class MainActivity extends AppCompatActivity {
 
         Logger.enableLog();
 
-
-        //  Declare a new thread to do a preference check
-        /*Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                //  Initialize SharedPreferences
-                SharedPreferences getPrefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-
-                //  Create a new boolean and preference and set it to true
-                isFirstStart = getPrefs.getBoolean("firstStart", true);
-
-                //  If the activity has never started before...
-                if (isFirstStart) {
-
-                    //  Make a new preferences editor
-                    SharedPreferences.Editor e = getPrefs.edit();
-
-                    //  Edit preference to make it false because we don't want this to run again
-                    e.putBoolean("firstStart", false);
-
-                    //  Apply changes
-                    e.apply();
-
-                    //  Launch app intro
-                    Intent i = new Intent(MainActivity.this, IntroActivity.class);
-                    startActivity(i);
-
-
-                }
-            }
-        });
-
-        // Start the thread
-        t.start();
-
-        if(!isFirstStart) {
-            //permissionManagement();
-            initApplication();
-        }*/
-
-        initApplication();
+        /**
+         * If the application doesn't have the correct permissions, we go back to the introActivity which will ask the user
+         */
+        if(CheckPermissionsUtil.checkPermissions(this)){
+            initActivity();
+        }else{
+            startActivity(new Intent(MainActivity.this,IntroActivity.class));
+            finish();
+        }
 
     }
-
-    /**
-     * At the starting of the app, check if needed permission are granted.
-     * Ask for permission if one of them is not
-     */
-    /*private void permissionManagement(){
-        int permissionCheckReadContact= ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_CONTACTS);
-        int permissionCheckReceiveSMS = ContextCompat.checkSelfPermission(this, android.Manifest.permission.RECEIVE_SMS);
-        int permissionCheckReadSMS = ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_SMS);
-        int permissionCheckFineLocation = ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION);
-        int permissionCheckCoarseLocation = ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION);
-        int permissionCheckCamera = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
-
-        if( permissionCheckReadSMS== PackageManager.PERMISSION_GRANTED &&
-                permissionCheckReceiveSMS==PackageManager.PERMISSION_GRANTED &&
-                permissionCheckReadContact==PackageManager.PERMISSION_GRANTED &&
-                permissionCheckFineLocation==PackageManager.PERMISSION_GRANTED &&
-                permissionCheckCoarseLocation==PackageManager.PERMISSION_GRANTED &&
-                permissionCheckCamera==PackageManager.PERMISSION_GRANTED){
-            initApplication();
-        }else if(permissionCheckReadSMS==PackageManager.PERMISSION_DENIED ||
-                permissionCheckReceiveSMS==PackageManager.PERMISSION_DENIED ||
-                permissionCheckReadContact==PackageManager.PERMISSION_DENIED ||
-                permissionCheckFineLocation==PackageManager.PERMISSION_DENIED ||
-                permissionCheckCoarseLocation==PackageManager.PERMISSION_DENIED ||
-                permissionCheckCamera==PackageManager.PERMISSION_DENIED){
-            ActivityCompat.requestPermissions(this,new String[]{android.Manifest.permission.READ_SMS,
-                    android.Manifest.permission.RECEIVE_SMS,
-                    android.Manifest.permission.READ_CONTACTS,
-                    android.Manifest.permission.ACCESS_FINE_LOCATION,
-                    android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                    android.Manifest.permission.CAMERA}, Constants.ID_PERMISSION_REQUEST);
-        }
-    }*/
 
     /**
      * Most important function
      * Trigger the init for each part
      */
-    private void initApplication(){
+    private void initActivity(){
         contactHistoricDAO = new ContactHistoricDAO(MainActivity.this);
-        //contactHistoricDAO.addContactHistoric(new ContactHistoric("test","0100000000",Calendar.getInstance().getTime()));
-
         settingsDAO = new SettingsDAO(MainActivity.this);
-        settingsDAO.saveSetting(new Settings("JE SUIS LA",1,1,1,0));
-
         initNavigationDrawer();
         initBroadcastReceiver();
         mapContacts = ContactUtils.getContacts(getContentResolver());
-
-
         initListView();
         initAutoCompleteTextView();
         initButton();
         locationUtils = new LocationUtils(getApplicationContext());
+        hideKeyboard();
     }
+
 
     private void initNavigationDrawer(){
         // Handle Toolbar
@@ -199,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         // Create the AccountHeader
-        headerResult = new AccountHeaderBuilder()
+        AccountHeader headerResult = new AccountHeaderBuilder()
                 .withActivity(this)
                 .withCompactStyle(true)
                 .withHeaderBackground(R.drawable.header)
@@ -296,9 +228,11 @@ public class MainActivity extends AppCompatActivity {
                             }
                             else if(drawerItem.getIdentifier()==Constants.ID_DL_ITEM_CONTACT_ACTIVITY){
                                 startActivity(new Intent(MainActivity.this,WhiteListActivity.class));
+
                             }else if(nameable.getName().toString().equals(getString(R.string.dl_item_source_code))){
                                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.github.com/ypierru/geophone"));
                                 startActivity(browserIntent);
+
                             }else if(nameable.getName().toString().equals(getString(R.string.dl_item_contact))){
                                 Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto","pierru@edu.ece.fr", null));
                                 startActivity(Intent.createChooser(emailIntent, getString(R.string.send_email)));
@@ -322,8 +256,6 @@ public class MainActivity extends AppCompatActivity {
         initSwitch((SwitchDrawerItem)result.getDrawerItem(Constants.ID_DL_ITEM_RINGTONE),settings.getRingtone());
         initSwitch((SwitchDrawerItem)result.getDrawerItem(Constants.ID_DL_ITEM_WAKEUP_ANONYMOUS),settings.getWakeupAnonymous());
 
-
-        //result.openDrawer();
 
         DrawerLayout drawer = result.getDrawerLayout();
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -385,16 +317,39 @@ public class MainActivity extends AppCompatActivity {
      * Start the broadcast receiver
      */
     private void initBroadcastReceiver(){
+
         if(SMS_RECEIVING_FEATURE) {
+
+            final ContactWhiteListDAO contactWhiteListDAO = new ContactWhiteListDAO(this);
+
             broadcastReceiver = new SMSBroadcastReceiver() {
 
                 @Override
                 protected void onNewSMS(String message, String phone) {
-                    if(message.startsWith(Constants.SMS_CMD_TAG)){
+                    Cursor cursorContacts = contactWhiteListDAO.getCursorContactWhiteList();
+                    boolean contactAllowed=false;
+
+                    //Verify that the incoming phone is allowed to wake up my device
+                    while(cursorContacts.moveToNext()){
+                        if(cursorContacts.getString(2).equals(phone)) {
+                            contactAllowed = true;
+                            break;
+                        }
+                    }
+                    if(!contactAllowed){
+                        Settings settings=settingsDAO.getSettings();
+                        if(settings.getWakeupAnonymous()==1){
+                            contactAllowed=true;
+                        }
+                    }
+
+                    //Check if the incoming message correspond to a request of my app
+                    if(message.startsWith(Constants.SMS_CMD_TAG) && contactAllowed){
                         if (progressDialog != null && progressDialog.isShowing()) {
                             progressDialog.dismiss();
                         }
 
+                        //If the message is a request, we send the location and start the overlockscreen activity
                         if(message.startsWith(Constants.SMS_CMD_COO_REQUEST)){
                             String msg = message.substring(Constants.SMS_CMD_COO_REQUEST.length());
 
@@ -403,9 +358,13 @@ public class MainActivity extends AppCompatActivity {
                             StringBuilder response = new StringBuilder();
                             response.append(Constants.SMS_CMD_TAG);
                             response.append(Constants.SMS_CMD_COO_GPS_RESPONSE);
-                            response.append(lastLocation.getLatitude());
-                            response.append(";");
-                            response.append(lastLocation.getLongitude());
+                            if(lastLocation!=null) {
+                                response.append(lastLocation.getLatitude());
+                                response.append(";");
+                                response.append(lastLocation.getLongitude());
+                            }else{
+                                response.append("LOCATION_NULL");
+                            }
 
 
                             sendSMS(phone,response.toString());
@@ -417,28 +376,47 @@ public class MainActivity extends AppCompatActivity {
 
                         }
 
+                        //If the message contains GPS coordinate, then we start the map activity with the coordinates of the phone searched
                         if(message.substring(Constants.SMS_CMD_TAG.length()).startsWith(Constants.SMS_CMD_COO_GPS_RESPONSE)){
-                            int length = Constants.SMS_CMD_TAG.length()+Constants.SMS_CMD_COO_GPS_RESPONSE.length();
-                            String latlng = message.substring(length);
-                            Location locationReceived = new Location("");
-                            locationReceived.setLatitude(Double.parseDouble(latlng.split(";")[0]));
-                            locationReceived.setLongitude(Double.parseDouble(latlng.split(";")[1]));
 
-                            Intent intent = new Intent(MainActivity.this, MapsActivity.class);
-                            intent.putExtra(Constants.SEARCHED_PHONE_LOCATION,locationReceived);
+                            //If the location is null, then we cannot do anything
+                            if(!message.contains("LOCATION_NULL")) {
+                                int length = Constants.SMS_CMD_TAG.length() + Constants.SMS_CMD_COO_GPS_RESPONSE.length();
+                                String latlng = message.substring(length);
+                                Location locationReceived = new Location("");
+                                locationReceived.setLatitude(Double.parseDouble(latlng.split(";")[0]));
+                                locationReceived.setLongitude(Double.parseDouble(latlng.split(";")[1]));
 
-                            if(contactSelected.getName().equals(Constants.LABEL_UNKNOW_CONTACT))
-                                intent.putExtra(Constants.SEARCHED_PHONE_ID,contactSelected.getPhone());
-                            else
-                                intent.putExtra(Constants.SEARCHED_PHONE_ID,contactSelected.getName());
+                                Intent intent = new Intent(MainActivity.this, MapsActivity.class);
+                                intent.putExtra(Constants.SEARCHED_PHONE_LOCATION, locationReceived);
 
-                            startActivity(intent);
+                                if (contactSelected.getName().equals(Constants.LABEL_UNKNOW_CONTACT))
+                                    intent.putExtra(Constants.SEARCHED_PHONE_ID, contactSelected.getPhone());
+                                else
+                                    intent.putExtra(Constants.SEARCHED_PHONE_ID, contactSelected.getName());
+
+                                startActivity(intent);
+                            }else{
+                                new AlertDialog.Builder(MainActivity.this)
+                                        .setTitle(getString(R.string.dialog_location_null_title))
+                                        .setMessage(getString(R.string.dialog_location_null_message))
+                                        .setNeutralButton(getString(R.string.dialog_location_null_neutral_btn), new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                dialog.dismiss();
+                                            }
+                                        })
+                                        .setCancelable(true)
+                                        .setIcon(android.R.drawable.ic_dialog_alert)
+                                        .show();
+                            }
 
                         }
                     }
 
                 }
             };
+
+            //Registering the broadcast receiver
             IntentFilter intentFilter = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
             intentFilter.setPriority(999);
             this.registerReceiver(broadcastReceiver, intentFilter);
@@ -449,7 +427,7 @@ public class MainActivity extends AppCompatActivity {
      * Init the listview with the adapter and the item click listener
      */
     private void initListView(){
-        lvPreviousSearch=(ListView)findViewById(R.id.lv_previous_search);
+        ListView lvPreviousSearch=(ListView)findViewById(R.id.lv_previous_search);
         contactHistoricAdapter = new ContactHistoricAdapter(MainActivity.this,contactHistoricDAO.getCursorContactHistoric());
         lvPreviousSearch.setAdapter(contactHistoricAdapter);
 
@@ -463,6 +441,38 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 actvContact.dismissDropDown();
+            }
+        });
+
+        //Long press on historic item will delete it
+        lvPreviousSearch.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                Cursor cursor=(Cursor) parent.getItemAtPosition(position);
+
+                cursor.moveToPosition(position);
+                final String contact=cursor.getString(1);
+                final String phone=cursor.getString(2);
+
+                new AlertDialog.Builder(MainActivity.this)
+                        .setTitle(getString(R.string.dialog_clear_item_historic_title))
+                        .setMessage(getString(R.string.dialog_clear_item_historic_message))
+                        .setPositiveButton(getString(R.string.dialog_clear_item_historic_pos_btn), new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                contactHistoricDAO.deleteContactHistoric(contact,phone);
+                                refreshListView();
+                                dialog.dismiss();
+                            }
+                        })
+                        .setNegativeButton(getString(R.string.dialog_clear_item_historic_neg_btn), new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        })
+                        .setCancelable(true)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+                return false;
             }
         });
     }
@@ -481,7 +491,7 @@ public class MainActivity extends AppCompatActivity {
      * Init the Button
      */
     private void initButton(){
-        btnSearch=(Button)findViewById(btn_search);
+        Button btnSearch=(Button)findViewById(btn_search);
         btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -498,13 +508,9 @@ public class MainActivity extends AppCompatActivity {
 
                     contactHistoricDAO.addContactHistoric(contactSelected);
 
-                    contactHistoricAdapter.swapCursor(contactHistoricDAO.getCursorContactHistoric());
-                    contactHistoricAdapter.notifyDataSetChanged();
+                    refreshListView();
 
-
-                    //Hide the keyboard
-                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(actvContact.getWindowToken(), 0);
+                    hideKeyboard();
 
                     Settings settings = settingsDAO.getSettings();
 
@@ -530,13 +536,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-       /* btnSearch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this,MainActivity.class);
-                startActivity(intent);
-            }
-        });*/
+    }
+
+    /**
+     * Refresh the historic list view
+     */
+    private void refreshListView(){
+        contactHistoricAdapter.swapCursor(contactHistoricDAO.getCursorContactHistoric());
+        contactHistoricAdapter.notifyDataSetChanged();
     }
 
     /**
@@ -564,31 +571,47 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Hide the keyboard
+     */
+    private void hideKeyboard(){
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(actvContact.getWindowToken(), 0);
+    }
 
-    /*@Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
 
-        switch (requestCode) {
-            case Constants.ID_PERMISSION_REQUEST: {
-
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    initApplication();
-                } else {
-                    DialogUtils.permissionsKO(this);
-                }
-                return;
+        //Item which will delete all items of historic list view
+        MenuItem itemClearHistoric = menu.add(getString(R.string.android_menu_item_clear_historic)).setIcon(new IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_delete));
+        itemClearHistoric.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        itemClearHistoric.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                new AlertDialog.Builder(MainActivity.this)
+                        .setTitle(getString(R.string.dialog_clear_historic_title))
+                        .setMessage(getString(R.string.dialog_clear_historic_message))
+                        .setPositiveButton(getString(R.string.dialog_clear_historic_pos_btn), new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                contactHistoricDAO.deleteAllContactsHistoric();
+                                refreshListView();
+                            }
+                        })
+                        .setNegativeButton(getString(R.string.dialog_clear_historic_neg_btn), new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        })
+                        .setCancelable(true)
+                        .setIcon(new IconicsDrawable(MainActivity.this).icon(GoogleMaterial.Icon.gmd_delete))
+                        .show();
+                return false;
             }
-        }
-    }*/
+        });
 
-   /* @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        //add the values which need to be saved from the drawer to the bundle
-        outState = result.saveInstanceState(outState);
-        //add the values which need to be saved from the accountHeader to the bundle
-        outState = headerResult.saveInstanceState(outState);
-        super.onSaveInstanceState(outState);
-    }*/
+        return true;
+    }
+
 
     @Override
     public void onResume() {
