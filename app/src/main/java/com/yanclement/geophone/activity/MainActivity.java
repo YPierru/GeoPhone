@@ -174,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
                                 .withIdentifier(Constants.ID_DL_ITEM_CONTACT_ACTIVITY),
                         new SwitchDrawerItem()
                                 .withName(getString(R.string.dl_item_wakeup_anonymous))
-                                .withIcon(GoogleMaterial.Icon.gmd_folder_person)
+                                .withIcon(GoogleMaterial.Icon.gmd_folder_special)
                                 .withOnCheckedChangeListener(onCheckedChangeListener)
                                 .withIdentifier(Constants.ID_DL_ITEM_WAKEUP_ANONYMOUS)
                                 .withSelectable(false),

@@ -32,7 +32,7 @@
     <string name="send_email">Envoyer un mail</string>
     <string name="android_menu_item_add_all_contact">Ajouter tout les contacts</string>
     <string name="android_menu_item_delete_all_contact">Supprimer tout les contacts</string>
-    <string name="android_menu_item_clear_historic">Vider l'historique</string>
+    <string name="android_menu_item_clear_historic">Vider l\'historique</string>
 
     <!--
         String for dialog use
@@ -72,12 +72,12 @@
     <string name="dialog_ask_permissions_message">GeoPhone a besoin de lire vos contacts, de recevoir vos SMS, d\'accéder à votre localisation ainsi qu\'à votre appareil photo. Ces permissions sont nécessaires pour le bon fonctionnement de l\'application. Il n\'est pas possible d\'utiliser GeoPhone sans ces permissions. Les fenêtres qui vont suivrent vous demandent ces permissions.</string>
     <string name="dialog_ask_permissions_pos_btn">D\'accord</string>
     <string name="dialog_ask_permissions_neg_btn">Quitter</string>
-    <string name="dialog_clear_historic_title">Supprimer l'historique</string>
-    <string name="dialog_clear_historic_message">Etes-vous sûr de vouloir supprimer l'historique ?</string>
+    <string name="dialog_clear_historic_title">Supprimer l\'historique</string>
+    <string name="dialog_clear_historic_message">Etes-vous sûr de vouloir supprimer l\'historique ?</string>
     <string name="dialog_clear_historic_pos_btn">Oui</string>
     <string name="dialog_clear_historic_neg_btn">Non</string>
-    <string name="dialog_clear_item_historic_title">Supprimer ce contact de l'historique</string>
-    <string name="dialog_clear_item_historic_message">Etes-vous sûr de vouloir supprimer ce contact de l'historique ?</string>
+    <string name="dialog_clear_item_historic_title">Supprimer ce contact de l\'historique</string>
+    <string name="dialog_clear_item_historic_message">Etes-vous sûr de vouloir supprimer ce contact de l\'historique ?</string>
     <string name="dialog_clear_item_historic_pos_btn">Oui</string>
     <string name="dialog_clear_item_historic_neg_btn">Non</string>
     <string name="dialog_location_null_title">Localisation nulle</string>
