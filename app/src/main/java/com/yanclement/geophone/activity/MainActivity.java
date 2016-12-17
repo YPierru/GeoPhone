@@ -376,7 +376,7 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         //If the message contains GPS coordinate, then we start the map activity with the coordinates of the phone searched
-                        /*if(message.substring(Constants.SMS_CMD_TAG.length()).startsWith(Constants.SMS_CMD_COO_GPS_RESPONSE)){
+                        if(message.substring(Constants.SMS_CMD_TAG.length()).startsWith(Constants.SMS_CMD_COO_GPS_RESPONSE)){
 
                             //If the location is null, then we cannot do anything
                             if(!message.contains("LOCATION_NULL")) {
@@ -409,7 +409,7 @@ public class MainActivity extends AppCompatActivity {
                                         .show();
                             }
 
-                        }*/
+                        }
                     }
 
                 }

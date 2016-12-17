@@ -12,7 +12,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.yanclement.geophone.Constants;
 import com.yanclement.geophone.R;
-import com.yanclement.geophone.utils.LocationUtils;
 
 import static com.yanclement.geophone.R.id.map;
 
@@ -29,8 +28,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(map);
         mapFragment.getMapAsync(this);
-
-        LocationUtils locationUtils = new LocationUtils(this);
 
         searchedPhoneLocation = getIntent().getExtras().getParcelable(Constants.SEARCHED_PHONE_LOCATION);
         searchedPhoneID = getIntent().getExtras().getString(Constants.SEARCHED_PHONE_ID);
