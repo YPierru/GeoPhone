@@ -436,7 +436,10 @@ public class MainActivity extends AppCompatActivity {
                 Cursor cursor=(Cursor) parent.getItemAtPosition(position);
 
                 if(cursor.moveToPosition(position)){
-                    actvContact.setText(cursor.getString(1));
+                    if(cursor.getString(1).equals(Constants.LABEL_UNKNOW_CONTACT))
+                        actvContact.setText(cursor.getString(2));
+                    else
+                        actvContact.setText(cursor.getString(1));
                 }
 
                 actvContact.dismissDropDown();
