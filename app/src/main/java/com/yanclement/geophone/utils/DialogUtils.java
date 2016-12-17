@@ -52,7 +52,7 @@ public class DialogUtils {
                     }
                 })
                 .setCancelable(false)
-                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setIcon(R.drawable.ic_warning_black_24px)
                 .show();
     }
 
@@ -71,7 +71,7 @@ public class DialogUtils {
                     }
                 })
                 .setCancelable(true)
-                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setIcon(R.drawable.ic_warning_black_24px)
                 .show();
     }
 
@@ -113,7 +113,7 @@ public class DialogUtils {
                     }
                 })
                 .setCancelable(true)
-                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setIcon(R.drawable.ic_warning_black_24px)
                 .show();
 
     }

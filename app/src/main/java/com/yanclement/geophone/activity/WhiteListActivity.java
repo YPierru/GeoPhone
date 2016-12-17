@@ -18,8 +18,6 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
-import com.mikepenz.google_material_typeface_library.GoogleMaterial;
-import com.mikepenz.iconics.IconicsDrawable;
 import com.yanclement.geophone.R;
 import com.yanclement.geophone.adapter.ContactWhiteListAdapter;
 import com.yanclement.geophone.dao.ContactWhiteListDAO;
@@ -91,7 +89,7 @@ public class WhiteListActivity extends AppCompatActivity {
                             }
                         })
                         .setCancelable(true)
-                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setIcon(R.drawable.ic_warning_black_24px)
                         .show();
                 return false;
             }
@@ -118,7 +116,7 @@ public class WhiteListActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
 
         //This item will add to the white list all the contact from the phone
-        MenuItem itemAddAllContacts = menu.add(getString(R.string.android_menu_item_add_all_contact)).setIcon(new IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_accounts_add));
+        MenuItem itemAddAllContacts = menu.add(getString(R.string.android_menu_item_add_all_contact)).setIcon(R.drawable.ic_group_add_white_24px);
         itemAddAllContacts.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         itemAddAllContacts.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
@@ -145,7 +143,7 @@ public class WhiteListActivity extends AppCompatActivity {
                             }
                         })
                         .setCancelable(true)
-                        .setIcon(new IconicsDrawable(WhiteListActivity.this).icon(GoogleMaterial.Icon.gmd_accounts_add))
+                        .setIcon(R.drawable.ic_warning_black_24px)
                         .show();
                 return false;
             }
@@ -153,7 +151,7 @@ public class WhiteListActivity extends AppCompatActivity {
 
 
         //This item will remove all the contacts of the white list
-        MenuItem itemDeleteAllContacts = menu.add(getString(R.string.android_menu_item_delete_all_contact)).setIcon(new IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_delete));
+        MenuItem itemDeleteAllContacts = menu.add(getString(R.string.android_menu_item_delete_all_contact)).setIcon(R.drawable.ic_clear_all_white_24px);
         itemDeleteAllContacts.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         itemDeleteAllContacts.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
@@ -173,7 +171,7 @@ public class WhiteListActivity extends AppCompatActivity {
                             }
                         })
                         .setCancelable(true)
-                        .setIcon(new IconicsDrawable(WhiteListActivity.this).icon(GoogleMaterial.Icon.gmd_delete))
+                        .setIcon(R.drawable.ic_warning_black_24px)
                         .show();
                 return false;
             }
@@ -308,7 +306,7 @@ public class WhiteListActivity extends AppCompatActivity {
                     }
                 })
                 .setCancelable(true)
-                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setIcon(R.drawable.ic_warning_black_24px)
                 .show();
 
     }

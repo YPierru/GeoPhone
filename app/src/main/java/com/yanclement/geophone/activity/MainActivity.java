@@ -27,7 +27,6 @@ import android.widget.CompoundButton;
 import android.widget.ListView;
 
 import com.mikepenz.google_material_typeface_library.GoogleMaterial;
-import com.mikepenz.iconics.IconicsDrawable;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
@@ -75,8 +74,8 @@ public class MainActivity extends AppCompatActivity {
 
     private ContactHistoricAdapter contactHistoricAdapter;
 
-    private final boolean SMS_SENDING_FEATURE=false;
-    private final boolean SMS_RECEIVING_FEATURE=false;
+    private final boolean SMS_SENDING_FEATURE=true;
+    private final boolean SMS_RECEIVING_FEATURE=true;
     private SMSBroadcastReceiver broadcastReceiver;
     private ProgressDialog progressDialog;
     private LocationUtils locationUtils;
@@ -377,7 +376,7 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         //If the message contains GPS coordinate, then we start the map activity with the coordinates of the phone searched
-                        if(message.substring(Constants.SMS_CMD_TAG.length()).startsWith(Constants.SMS_CMD_COO_GPS_RESPONSE)){
+                        /*if(message.substring(Constants.SMS_CMD_TAG.length()).startsWith(Constants.SMS_CMD_COO_GPS_RESPONSE)){
 
                             //If the location is null, then we cannot do anything
                             if(!message.contains("LOCATION_NULL")) {
@@ -410,7 +409,7 @@ public class MainActivity extends AppCompatActivity {
                                         .show();
                             }
 
-                        }
+                        }*/
                     }
 
                 }
@@ -448,6 +447,8 @@ public class MainActivity extends AppCompatActivity {
         lvPreviousSearch.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+
+                actvContact.setText("");
                 Cursor cursor=(Cursor) parent.getItemAtPosition(position);
 
                 cursor.moveToPosition(position);
@@ -470,7 +471,7 @@ public class MainActivity extends AppCompatActivity {
                             }
                         })
                         .setCancelable(true)
-                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setIcon(R.drawable.ic_warning_black_24px)
                         .show();
                 return false;
             }
@@ -583,7 +584,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
 
         //Item which will delete all items of historic list view
-        MenuItem itemClearHistoric = menu.add(getString(R.string.android_menu_item_clear_historic)).setIcon(new IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_delete));
+        MenuItem itemClearHistoric = menu.add(getString(R.string.android_menu_item_clear_historic)).setIcon(R.drawable.ic_clear_all_white_24px);
         itemClearHistoric.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         itemClearHistoric.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
@@ -603,7 +604,7 @@ public class MainActivity extends AppCompatActivity {
                             }
                         })
                         .setCancelable(true)
-                        .setIcon(new IconicsDrawable(MainActivity.this).icon(GoogleMaterial.Icon.gmd_delete))
+                        .setIcon(R.drawable.ic_warning_black_24px)
                         .show();
                 return false;
             }

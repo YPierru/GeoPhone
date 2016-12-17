@@ -20,7 +20,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private GoogleMap gMap;
     private Location searchedPhoneLocation;
-    private Location myLocation;
     private String searchedPhoneID;
 
     @Override
@@ -34,7 +33,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         LocationUtils locationUtils = new LocationUtils(this);
 
         searchedPhoneLocation = getIntent().getExtras().getParcelable(Constants.SEARCHED_PHONE_LOCATION);
-        myLocation = locationUtils.getLastLocation();
         searchedPhoneID = getIntent().getExtras().getString(Constants.SEARCHED_PHONE_ID);
 
     }

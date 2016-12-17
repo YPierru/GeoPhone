@@ -5,9 +5,9 @@
     <string name="app_name">GeoPhone</string>
     <string name="service_name">ServiceListenerSMS</string>
     <string name="app_intro">IntroActivity</string>
-    <string name="title_activity_main">GeoPhone</string>
+    <string name="title_activity_main">Geophone - Recherche</string>
     <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyA7qBQd6wKTJ_q7hvSKVtoKIUFoXcQHJeg</string>
-    <string name="title_activity_maps">Map</string>
+    <string name="title_activity_maps">Carte</string>
     <string name="title_activity_over_lock_screen">OverLockScreenActivity</string>
     <string name="title_activity_white_list">Contacts autorisés</string>
     <string name="statusbar_activity_intro">Demande de permission</string>
@@ -30,8 +30,8 @@
     <string name="nav_header_label">Réglages</string>
     <string name="btn_stop_search">Trouvé !</string>
     <string name="send_email">Envoyer un mail</string>
-    <string name="android_menu_item_add_all_contact">Ajouter tout les contacts</string>
-    <string name="android_menu_item_delete_all_contact">Supprimer tout les contacts</string>
+    <string name="android_menu_item_add_all_contact">Ajouter tous les contacts</string>
+    <string name="android_menu_item_delete_all_contact">Supprimer tous les contacts</string>
     <string name="android_menu_item_clear_historic">Vider l\'historique</string>
 
     <!--
@@ -64,8 +64,8 @@
     <string name="dialog_delete_contact_message">Etes-vous sûr de vouloir supprimer ce contact ?</string>
     <string name="dialog_delete_contact_pos_btn">Oui</string>
     <string name="dialog_delete_contact_neg_btn">Non</string>
-    <string name="dialog_delete_all_contact_title">Supprimer tout les contacts</string>
-    <string name="dialog_delete_all_contact_message">Etes-vous sûr de vouloir supprimer tout les contacts ?</string>
+    <string name="dialog_delete_all_contact_title">Supprimer tous les contacts</string>
+    <string name="dialog_delete_all_contact_message">Etes-vous sûr de vouloir supprimer tous les contacts ?</string>
     <string name="dialog_delete_all_contact_pos_btn">Oui</string>
     <string name="dialog_delete_all_contact_neg_btn">Non</string>
     <string name="dialog_ask_permissions_title">Demande de permissions</string>
@@ -88,12 +88,6 @@
         Item menu label
     -->
     <string name="menu_item_labelalert">Text d\'alerte</string>
-    <string name="menu_item_flash_on">Flash [ON]</string>
-    <string name="menu_item_flash_off">Flash [OFF]</string>
-    <string name="menu_item_sound_on">Sonnerie [ON]</string>
-    <string name="menu_item_sound_off">Sonnerie [OFF]</string>
-    <string name="menu_item_vibrate_on">Vibration [ON]</string>
-    <string name="menu_item_vibrate_off">Vibration [OFF]</string>
 
     <!--
         Drawet Layout Item

@@ -62,7 +62,7 @@ public class IntroActivity extends AppCompatActivity {
                         }
                     })
                     .setCancelable(true)
-                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setIcon(R.drawable.ic_warning_black_24px)
                     .show();
 
         }
